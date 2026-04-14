@@ -64,6 +64,9 @@ app.permanent_session_lifetime = timedelta(hours=2)
 db = SQLAlchemy(app)
 serializer = URLSafeTimedSerializer(app.secret_key)
 
+with app.app_context():
+    db.create_all() 
+
 # ------------------- MODELLER -------------------
 class User(db.Model):
     __tablename__ = "users"
