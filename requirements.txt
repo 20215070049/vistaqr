@@ -3,5 +3,5 @@ Flask-SQLAlchemy
 itsdangerous
 qrcode
 email-validator
-pyodbc
+psycopg2-binary
 Pillow
