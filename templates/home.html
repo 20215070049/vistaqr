@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VistaQR | {% if lang == 'tr' %}Ana Sayfa{% else %}Home{% endif %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #0059b3, #003064 70%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    .lang-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 4px;
+      transition: 0.3s;
+    }
+
+    .lang-switch a:hover {
+      opacity: 1;
+    }
+
+    h1 {
+      font-size: 54px;
+      font-weight: 700;
+      color: #4fd3ff;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(79,211,255,0.4);
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #e6efff;
+      max-width: 600px;
+      margin-bottom: 45px;
+      opacity: 0.85;
+      line-height: 1.5;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 18px;
+      font-size: 17px;
+      font-weight: 500;
+      text-decoration: none;
+      color: white;
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+      transition: all 0.25s ease-in-out;
+    }
+
+    .btn:hover {
+      background: rgba(255,255,255,0.22);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 25px;
+      font-size: 14px;
+      color: #bcdcff;
+      opacity: 0.85;
+    }
+
+    @media(max-width: 600px) {
+      h1 { font-size: 40px; }
+      .subtitle { font-size: 16px; padding: 0 20px; }
+      .btn { width: 80%; text-align: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="lang-switch">
+    <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
+    <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+  </div>
+
+  <h1>VistaQR</h1>
+
+  <p class="subtitle">
+    {% if lang == 'tr' %}
+      Eşyalarınızı kaybetseniz bile, bulan kişinin size ulaşmasının en akıllı yolu.
+    {% else %}
+      Even if you lose your belongings, the smartest way for the finder to reach you.
+    {% endif %}
+  </p>
+
+  <div class="buttons">
+    <a href="{{ url_for('user_login') }}" class="btn">
+      {% if lang == 'tr' %}Kullanıcı Girişi{% else %}User Login{% endif %}
+    </a>
+
+    <a href="{{ url_for('about') }}" class="btn">
+      {% if lang == 'tr' %}Hakkımızda{% else %}About{% endif %}
+    </a>
+  </div>
+
+  <footer>
+    © 2025 VistaQR — {% if lang == 'tr' %}Tüm hakları saklıdır.{% else %}All rights reserved.{% endif %}
+  </footer>
+
+</body>
+</html>

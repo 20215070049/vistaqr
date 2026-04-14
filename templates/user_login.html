@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Kullanıcı Girişi | VistaQR' if lang == 'tr' else 'User Login | VistaQR' }}</title>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #000428, #004e92); /* about.html ile aynı */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 14px;
+        }
+
+        .lang-switch a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 5px;
+            transition: 0.2s;
+        }
+
+        .lang-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.13);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px 35px;
+            width: 380px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            animation: fade 0.5s ease-out;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #fff;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: none;
+            background: #003e7d;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #0055aa;
+        }
+
+        .error {
+            color: #ff6961;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .links a {
+            color: #cde6ff;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="lang-switch">
+        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
+        <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+    </div>
+
+    <div class="card">
+        <h2>{{ 'Kullanıcı Girişi' if lang == 'tr' else 'User Login' }}</h2>
+
+        <form method="POST">
+            <input type="text" name="email" placeholder="{{ 'E-posta veya Telefon' if lang=='tr' else 'Email or Phone' }}" required>
+            <input type="password" name="password" placeholder="{{ 'Şifre' if lang=='tr' else 'Password' }}" required>
+
+            <button type="submit">{{ 'Giriş Yap' if lang=='tr' else 'Login' }}</button>
+
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </form>
+
+        <div class="links" style="margin-top:15px;">
+            <a href="{{ url_for('home') }}">{{ 'Ana Sayfa' if lang=='tr' else 'Home' }}</a> |
+            <a href="{{ url_for('forgot_password') }}">{{ 'Şifremi Unuttum' if lang=='tr' else 'Forgot Password' }}</a>
+        </div>
+    </div>
+
+</body>
+</html>

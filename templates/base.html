@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}VistaQR{% endblock %}</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #002d63, #0059b3);
+      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* Üst Menü */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 50px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 12px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    header a:hover {
+      color: #00aaff;
+      text-decoration: underline;
+    }
+
+    .lang-switch a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 5px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .lang-switch a:hover {
+      color: #00aaff;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 140px 20px 80px;
+      animation: fadeIn 1.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+
+    footer {
+      padding: 25px;
+      font-size: 14px;
+      color: #a3c8ff;
+      opacity: 0.9;
+      background: rgba(0, 0, 0, 0.2);
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Kart efekti */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      animation: fadeInUp 1s ease;
+    }
+
+    /* Animasyonlar */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+  </style>
+  {% block extra_styles %}{% endblock %}
+</head>
+<body>
+
+  <header>
+    <div class="nav-left">
+      <a href="{{ url_for('home') }}">🏠 {% if lang == 'tr' %}Ana Sayfa{% else %}Home{% endif %}</a>
+      <a href="{{ url_for('about') }}">ℹ️ {% if lang == 'tr' %}Hakkımızda{% else %}About{% endif %}</a>
+      <a href="{{ url_for('user_login') }}">👤 {% if lang == 'tr' %}Giriş{% else %}Login{% endif %}</a>
+    </div>
+    <div class="lang-switch">
+      <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
+      <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    © 2025 VistaQR — {% if lang == 'tr' %}Tüm Hakları Saklıdır.{% else %}All Rights Reserved.{% endif %}
+  </footer>
+
+</body>
+</html>

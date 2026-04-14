@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if lang == 'en' %}
+            VistaQR – About Us
+        {% else %}
+            VistaQR – Hakkımızda
+        {% endif %}
+    </title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #002b62, #003d85);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding-top: 60px;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .lang-switch a {
+            color: white;
+            text-decoration: none;
+            margin: 0 4px;
+            transition: 0.3s;
+        }
+
+        .lang-switch a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 25px;
+        }
+
+        p {
+            font-size: 20px;
+            line-height: 1.6;
+            max-width: 650px;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 35px 0;
+        }
+
+        .tag {
+            background: rgba(255,255,255,0.12);
+            padding: 12px 22px;
+            border-radius: 16px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-img {
+            position: absolute;
+            top: 90px;
+            right: 120px;
+            width: 440px;
+            transform: rotate(-3deg);
+            filter: drop-shadow(0px 20px 40px rgba(0,0,0,0.45));
+        }
+
+        .section-title {
+            margin-top: 150px;
+            text-align: center;
+            font-size: 38px;
+            font-weight: 700;
+        }
+
+        .section-text {
+            margin: 25px auto;
+            font-size: 20px;
+            max-width: 900px;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .features {
+            margin-top: 70px;
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.13);
+            padding: 25px;
+            border-radius: 22px;
+            width: 340px;
+            backdrop-filter: blur(12px);
+        }
+
+        .card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        @media(max-width: 992px) {
+            .hero-img {
+                position: relative;
+                margin: 60px auto;
+                left: 0;
+                right: 0;
+                display: block;
+                width: 330px;
+                transform: rotate(0deg);
+                top: 0;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            p {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .section-text {
+                font-size: 18px;
+            }
+
+            .lang-switch {
+                top: 14px;
+                right: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="lang-switch">
+        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
+        <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+    </div>
+
+    <div class="container">
+
+        <h1>
+            {% if lang == 'en' %}
+                Feel Safe with<br>VistaQR Technology
+            {% else %}
+                VistaQR Teknolojisi ile<br>Güvendesiniz
+            {% endif %}
+        </h1>
+
+        <p>
+            {% if lang == 'en' %}
+                Experience the smart power of technology while enjoying the peace of mind of knowing your belongings are protected.
+                VistaQR allows the person who finds your lost keys to contact you within seconds.
+            {% else %}
+                Eşyanızın güvende olduğunu bilmenin rahatlığını yaşarken teknolojinin akıllı gücünü deneyimleyin.
+                VistaQR, kaybolan anahtarlarınızı bulan kişinin size saniyeler içinde ulaşmasını sağlar.
+            {% endif %}
+        </p>
+
+        <div class="tag-list">
+            <div class="tag">
+                {% if lang == 'en' %}
+                    🔒 End-to-end security
+                {% else %}
+                    🔒 End-to-end güvenlik
+                {% endif %}
+            </div>
+            <div class="tag">
+                {% if lang == 'en' %}
+                    🔐 Encrypted communication
+                {% else %}
+                    🔐 Şifreli iletişim
+                {% endif %}
+            </div>
+            <div class="tag">
+                {% if lang == 'en' %}
+                    ✨ User-friendly design
+                {% else %}
+                    ✨ Kullanıcı dostu tasarım
+                {% endif %}
+            </div>
+            <div class="tag">
+                {% if lang == 'en' %}
+                    🌍 Global compatibility
+                {% else %}
+                    🌍 Global uyum
+                {% endif %}
+            </div>
+        </div>
+
+        <img src="{{ url_for('static', filename='img/anahtar_telefon.png') }}"
+             class="hero-img"
+             alt="VistaQR Device and Keychain">
+
+        <h2 class="section-title">
+            {% if lang == 'en' %}
+                Who Are We?
+            {% else %}
+                Biz Kimiz?
+            {% endif %}
+        </h2>
+
+        <p class="section-text">
+            {% if lang == 'en' %}
+                VistaQR is an innovative initiative that uses technology to make everyday life easier for people.
+                Our goal is to reconnect lost belongings with their owners within seconds, in a secure and effortless way.
+            {% else %}
+                VistaQR, teknolojiyi insanların günlük hayatını kolaylaştırmak için kullanan yenilikçi bir girişimdir.
+                Amacımız, kaybolan eşyalar ile sahiplerini saniyeler içinde, güvenli ve zahmetsiz bir şekilde buluşturmaktır.
+            {% endif %}
+        </p>
+
+        <div class="features">
+            <div class="card">
+                <h3>
+                    {% if lang == 'en' %}
+                        🔐 Secure Infrastructure
+                    {% else %}
+                        🔐 Güvenli Altyapı
+                    {% endif %}
+                </h3>
+                <p>
+                    {% if lang == 'en' %}
+                        User data is protected with strong encryption methods. VistaQR puts security at the center.
+                    {% else %}
+                        Kullanıcı verileri güçlü şifreleme yöntemleriyle korunur. VistaQR güvenliği merkeze alır.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>
+                    {% if lang == 'en' %}
+                        ⚡ Fast Activation
+                    {% else %}
+                        ⚡ Hızlı Aktivasyon
+                    {% endif %}
+                </h3>
+                <p>
+                    {% if lang == 'en' %}
+                        You can activate your QR code in just a few steps and make it ready to use within seconds.
+                    {% else %}
+                        QR kodunuzu birkaç adımda aktifleştirir, saniyeler içinde kullanıma hazır hale getirirsiniz.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>
+                    {% if lang == 'en' %}
+                        🌍 Global Compatibility
+                    {% else %}
+                        🌍 Global Uyum
+                    {% endif %}
+                </h3>
+                <p>
+                    {% if lang == 'en' %}
+                        VistaQR is a solution designed to work worldwide. The finder can contact you through the most suitable communication channel.
+                    {% else %}
+                        VistaQR dünya genelinde çalışan bir çözümdür. Bulan kişi size en uygun iletişim kanalıyla ulaşabilir.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

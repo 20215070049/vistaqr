@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if lang == 'tr' %}Kullanıcı Paneli | VistaQR{% else %}User Panel | VistaQR{% endif %}</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #002d63, #0059b3);
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .lang-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 4px;
+      transition: 0.3s;
+    }
+
+    .lang-switch a:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      font-size: 40px;
+      color: #00aaff;
+      margin-top: 100px;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      font-size: 18px;
+      color: #e0e0e0;
+      margin-bottom: 30px;
+    }
+
+    .message-box {
+      width: 380px;
+      max-width: calc(100% - 40px);
+      margin: 0 auto 16px auto;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      box-sizing: border-box;
+    }
+
+    .message-success {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #dcfce7;
+    }
+
+    .message-error {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fee2e2;
+    }
+
+    form.profile-form {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      width: 350px;
+      max-width: calc(100% - 40px);
+      margin: 0 auto;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: none;
+      height: 100px;
+    }
+
+    .main-button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: #00aaff;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .main-button:hover {
+      background-color: #0090dd;
+      transform: translateY(-3px);
+    }
+
+    .section-title {
+      margin-top: 40px;
+      font-size: 28px;
+      color: #ffffff;
+    }
+
+    .qr-list {
+      width: 900px;
+      max-width: calc(100% - 40px);
+      margin: 20px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .qr-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+      text-align: left;
+    }
+
+    .qr-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .qr-info {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .qr-code-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .qr-meta {
+      font-size: 14px;
+      color: #dbeafe;
+      margin-bottom: 6px;
+    }
+
+    .qr-note {
+      font-size: 14px;
+      color: #e5e7eb;
+      margin-top: 8px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .toggle-form,
+    .note-form {
+      margin: 0;
+    }
+
+    .note-form {
+      margin-top: 14px;
+    }
+
+    .note-form textarea {
+      margin: 0 0 10px 0;
+      min-height: 88px;
+    }
+
+    .note-save-button {
+      width: auto;
+      min-width: 140px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .toggle-button {
+      min-width: 150px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-button:hover,
+    .note-save-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    .empty-box {
+      width: 700px;
+      max-width: calc(100% - 40px);
+      margin: 20px auto 0 auto;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 20px;
+      color: #dbeafe;
+      box-sizing: border-box;
+    }
+
+    a.back {
+      display: block;
+      margin-top: 28px;
+      color: #a3c8ff;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    a.back:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 50px;
+      margin-bottom: 30px;
+      font-size: 14px;
+      color: #a3c8ff;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 30px;
+        margin-top: 90px;
+      }
+
+      p.subtitle {
+        font-size: 16px;
+        padding: 0 18px;
+      }
+
+      .qr-card-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toggle-button {
+        width: 100%;
+      }
+
+      .lang-switch {
+        top: 14px;
+        right: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lang-switch">
+    <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
+    <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+  </div>
+
+  <h1>{% if lang == 'tr' %}Kullanıcı Paneli{% else %}User Panel{% endif %}</h1>
+  <p class="subtitle">
+    {% if lang == 'tr' %}
+      Bilgilerinizi güncelleyebilir ve QR durumlarınızı yönetebilirsiniz
+    {% else %}
+      You can update your information and manage your QR statuses
+    {% endif %}
+  </p>
+
+  {% if success %}
+    <div class="message-box message-success">{{ success }}</div>
+  {% endif %}
+
+  {% if error %}
+    <div class="message-box message-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" class="profile-form">
+    <input
+      type="text"
+      name="name"
+      value="{{ user.name }}"
+      placeholder="{% if lang == 'tr' %}Ad Soyad{% else %}Full Name{% endif %}"
+    >
+
+    <input
+      type="text"
+      name="phone"
+      value="{{ user.phone or '' }}"
+      placeholder="{% if lang == 'tr' %}Telefon Numarası{% else %}Phone Number{% endif %}"
+    >
+
+    <input
+      type="email"
+      name="email"
+      value="{% if user.email and not user.email.endswith('@vistaqr.local') %}{{ user.email }}{% endif %}"
+      placeholder="{% if lang == 'tr' %}E-posta (isteğe bağlı){% else %}Email (optional){% endif %}"
+    >
+
+    <input
+      type="password"
+      name="password"
+      placeholder="{% if lang == 'tr' %}Yeni Şifre (isteğe bağlı){% else %}New Password (optional){% endif %}"
+    >
+
+    <button type="submit" class="main-button">
+      {% if lang == 'tr' %}Bilgileri Güncelle{% else %}Update Information{% endif %}
+    </button>
+  </form>
+
+  <h2 class="section-title">{% if lang == 'tr' %}QR'larım{% else %}My QRs{% endif %}</h2>
+
+  {% if keychains and keychains|length > 0 %}
+    <div class="qr-list">
+      {% for qr in keychains %}
+        <div class="qr-card">
+          <div class="qr-card-top">
+            <div class="qr-info">
+              <div class="qr-code-text">{{ qr.qr_code_id }}</div>
+
+              <div class="qr-meta">
+                {% if lang == 'tr' %}
+                  Durum: {{ qr.label_tr }}
+                {% else %}
+                  Status: {{ qr.label_en }}
+                {% endif %}
+              </div>
+
+              {% if qr.note %}
+                <div class="qr-note">
+                  <strong>{% if lang == 'tr' %}Not:{% else %}Note:{% endif %}</strong>
+                  {{ qr.note }}
+                </div>
+              {% endif %}
+            </div>
+
+            <form method="POST" action="{{ url_for('toggle_keychain_status', keychain_id=qr.id) }}" class="toggle-form">
+              <button
+                type="submit"
+                class="toggle-button"
+                style="background: {{ qr.button_color }};"
+              >
+                {% if lang == 'tr' %}
+                  {{ qr.button_text_tr }}
+                {% else %}
+                  {{ qr.button_text_en }}
+                {% endif %}
+              </button>
+            </form>
+          </div>
+
+          <form method="POST" action="{{ url_for('update_keychain_note', keychain_id=qr.id) }}" class="note-form">
+            <textarea
+              name="note"
+              placeholder="{% if lang == 'tr' %}Bu QR için not girin veya güncelleyin{% else %}Enter or update note for this QR{% endif %}"
+            >{{ qr.note or '' }}</textarea>
+
+            <button type="submit" class="note-save-button">
+              {% if lang == 'tr' %}Notu Güncelle{% else %}Update Note{% endif %}
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-box">
+      {% if lang == 'tr' %}
+        Henüz hesabınıza bağlı bir QR bulunmuyor.
+      {% else %}
+        There is no QR linked to your account yet.
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <a href="/" class="back">
+    {% if lang == 'tr' %}Ana Sayfaya Dön{% else %}Back to Home{% endif %}
+  </a>
+
+  <footer>
+    © 2025 VistaQR — {% if lang == 'tr' %}Tüm Hakları Saklıdır{% else %}All Rights Reserved{% endif %}
+  </footer>
+
+</body>
+</html>

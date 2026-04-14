@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <title>VistaQR - Şifre değiştirme işlemi Başarılı</title>
+    <style>
+        body {
+            background: #e8f5e9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background-color: white;
+            border-radius: 15px;
+            padding: 50px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #2e7d32;
+        }
+        .tick {
+            font-size: 60px;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2e7d32;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        a:hover {
+            background-color: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="tick">✔</div>
+        <h2>Aktivasyon Başarılı!</h2>
+        <p>Sayın <b>{{ name }}</b>,şifreniz güncellenmiştir.</p>
+        <a href="/">Ana Sayfaya Dön</a>
+    </div>
+</body>
+</html>

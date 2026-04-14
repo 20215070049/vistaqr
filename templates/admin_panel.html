@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VistaQR Yönetici Paneli</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #000428, #004e92);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 25px;
+            width: 450px;
+            margin: 0 auto;
+            margin-top: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+            animation: fadein 0.5s ease-out;
+        }
+
+        .stats-box {
+            background: rgba(255,255,255,0.25);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 95%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        button {
+            margin-top: 15px;
+            width: 70%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: #003e7d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        button:hover {
+            background: #0055aa;
+        }
+
+        .user-list-btn,
+        .delete-inactive-btn {
+            display: block;
+            width: 70%;
+            margin: 15px auto 0 auto;
+            padding: 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .user-list-btn {
+            background: #1e90ff;
+        }
+        .user-list-btn:hover {
+            background: #4aa3ff;
+        }
+
+        .delete-inactive-btn {
+            background: #cc0000;
+        }
+        .delete-inactive-btn:hover {
+            background: #ff3333;
+        }
+
+        .logout {
+            margin-top: 10px;
+        }
+        .logout a {
+            color: #cde6ff;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .logout a:hover {
+            text-decoration: underline;
+        }
+
+        .chart-card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 550px;
+            margin: 30px auto;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+            animation: fadein 0.5s ease-out;
+        }
+
+        #qrChart {
+            max-width: 350px;
+            max-height: 350px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal-container {
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 25px 25px 20px 25px;
+            width: 360px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: left;
+            color: #f0f4ff;
+            animation: fadein 0.2s ease-out;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .modal-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            color: #e4ecff;
+        }
+
+        .modal-warning {
+            font-size: 12px;
+            color: #ffd37a;
+            margin-bottom: 5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.12);
+            color: #f0f4ff;
+        }
+        .modal-btn.cancel:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .modal-btn.confirm {
+            background: #cc0000;
+            color: white;
+        }
+        .modal-btn.confirm:hover {
+            background: #ff3333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>VistaQR Yönetici Paneli</h2>
+
+        <div class="stats-box">
+            <p>Toplam QR: {{ total_qr }}</p>
+            <p>Aktif: {{ active_qr }}</p>
+            <p>İnaktif: {{ inactive_qr }}</p>
+        </div>
+
+        <!-- 🔥 BURAYA MESAJ KUTUSU EKLENDİ -->
+        {% if message %}
+            <div style="
+                background: rgba(255,255,255,0.25);
+                padding: 12px;
+                border-radius: 10px;
+                margin: 15px 0;
+                font-size: 14px;
+                font-weight: 500;
+                color: #fff;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            ">
+                {{ message }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="number" name="adet" placeholder="Kaç adet QR oluşturmak istersiniz?" min="1" required>
+            <button type="submit">QR Oluştur ve ZIP İndir</button>
+        </form>
+
+        <a href="{{ url_for('admin_users') }}" class="user-list-btn">📋 Kullanıcı Listesini Görüntüle</a>
+
+        <button type="button" class="delete-inactive-btn" onclick="openDeleteModal()">🗑 İnaktif QR Kodlarını Temizle</button>
+
+        <form id="deleteInactiveForm" method="POST" action="{{ url_for('delete_inactive_qrs') }}" style="display:none;">
+            <input type="hidden" name="admin_password" id="adminPasswordHidden">
+            <input type="hidden" name="confirm_delete" value="1">
+        </form>
+
+        <div class="logout">
+            <a href="{{ url_for('admin_logout') }}">Çıkış Yap</a>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h3>QR Dağılımı</h3>
+        <canvas id="qrChart"></canvas>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-container">
+            <div class="modal-title">İnaktif QR Kodlarını Temizle</div>
+            <div class="modal-text">
+                Bu işlem <b>geri alınamaz</b>.<br>
+                Lütfen devam etmek için <b>şifrenizi</b> girin.
+            </div>
+            <div class="modal-warning">
+                ⚠ Bu işlem şu anda <b>inaktif</b> durumda olan QR kodlarını silecektir.
+            </div>
+
+            <label style="font-size:13px;">Yönetici Şifresi</label>
+            <input type="password" id="adminPasswordInput" class="modal-input" placeholder="Şifrenizi girin">
+
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeDeleteModal()">Vazgeç</button>
+                <button class="modal-btn confirm" onclick="submitDeleteForm()">Onayla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var ctx = document.getElementById('qrChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Aktif', 'İnaktif'],
+                datasets: [{
+                    data: [{{ active_qr }}, {{ inactive_qr }}],
+                    backgroundColor: ['#3CB371', '#FF6F6F'],
+                    hoverOffset: 10
+                }]
+            }
+        });
+
+        function openDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            document.getElementById('adminPasswordInput').value = '';
+        }
+
+        function submitDeleteForm() {
+            const pass = document.getElementById('adminPasswordInput').value.trim();
+            if (!pass) {
+                alert("Lütfen şifreyi girin.");
+                return;
+            }
+
+            document.getElementById('adminPasswordHidden').value = pass;
+            document.getElementById('deleteInactiveForm').submit();
+        }
+    </script>
+
+</body>
+</html>

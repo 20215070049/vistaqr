@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VistaQR – Bulunan Eşya Sahibi</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #001533, #003b75);
+            color: white;
+            text-align: center;
+        }
+
+        .vista-logo {
+            width: 160px;
+            margin: 25px auto 15px auto;
+            display: block;
+        }
+
+        .card {
+            width: 90%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+            animation: fadein 0.5s ease-out;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            font-size: 17px;
+            text-align: left;
+            margin: 10px 0;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .info-icon {
+            color: #4ecbff;
+            margin-right: 8px;
+        }
+
+        .note-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .call-btn {
+            background: #00C851;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            color: white;
+            text-decoration: none;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            padding: 12px 23px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}?v=1" class="vista-logo">
+
+    <div class="card">
+        <div class="title">
+            {% if lang == 'en' %}
+                Found Item Owner
+            {% else %}
+                Bulunan Eşya Sahibi
+            {% endif %}
+        </div>
+
+        <div class="info-box">
+            <p>
+                <i class="fa-solid fa-user info-icon"></i>
+                <strong>{% if lang == 'en' %}Full Name:{% else %}Ad Soyad:{% endif %}</strong>
+                {{ owner.name }}
+            </p>
+
+            {% if owner.phone %}
+            <p>
+                <i class="fa-solid fa-phone info-icon"></i>
+                <strong>{% if lang == 'en' %}Phone:{% else %}Telefon:{% endif %}</strong>
+                <a href="tel:{{ owner.phone }}" style="color:#aee6ff;">
+                    {{ owner.phone }}
+                </a>
+            </p>
+            {% endif %}
+
+            {% if owner.email and not owner.email.endswith('@vistaqr.local') %}
+            <p>
+                <i class="fa-solid fa-envelope info-icon"></i>
+                <strong>{% if lang == 'en' %}Email:{% else %}E-posta:{% endif %}</strong>
+                <a href="mailto:{{ owner.email }}" style="color:#aee6ff;">
+                    {{ owner.email }}
+                </a>
+            </p>
+            {% endif %}
+        </div>
+
+        {% if note %}
+        <div class="note-box">
+            {{ note }}
+        </div>
+        {% endif %}
+
+        <div class="btn-row">
+            {% if owner.phone %}
+            <a class="call-btn" href="tel:{{ owner.phone }}">
+                {% if lang == 'en' %}Call{% else %}Ara{% endif %}
+            </a>
+            {% endif %}
+
+            {% if whatsapp_url %}
+            <a class="whatsapp-btn"
+               href="{{ whatsapp_url }}"
+               target="_blank">
+               <i class="fa-brands fa-whatsapp"></i>
+               WhatsApp
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>VistaQR - Kullanıcı Listesi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #000428, #004e92);
+            margin: 0;
+            padding: 20px;
+            color: #f5f7ff;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 20px 25px 25px 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+            margin-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #cde6ff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+        }
+
+        thead {
+            background: rgba(0,0,0,0.25);
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.06);
+        }
+
+        tbody tr:nth-child(odd) {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px 0;
+            font-size: 15px;
+            color: #dbe6ff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+
+        .badge-active {
+            background: #3CB371;
+            color: white;
+        }
+
+        .badge-inactive {
+            background: #FF6F6F;
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-view {
+            background: #1e90ff;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #cc0000;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #4aa3ff;
+        }
+
+        .btn-delete:hover {
+            background: #ff3333;
+        }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead {
+                display: none;
+            }
+            tbody tr {
+                margin-bottom: 10px;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            td {
+                padding: 8px 10px;
+                position: relative;
+            }
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                display: block;
+                margin-bottom: 3px;
+                color: #dbe6ff;
+            }
+            .actions {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>VistaQR Kullanıcı Listesi</h1>
+
+    <a href="{{ url_for('admin_panel') }}" class="back-link">← Yönetim Paneline Dön</a>
+
+    <div class="card">
+        {% if users|length == 0 %}
+            <div class="empty">
+                Sistemde kayıtlı kullanıcı bulunmamaktadır.
+            </div>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ad Soyad</th>
+                        <th>E-posta</th>
+                        <th>Telefon</th>
+                        <th>QR Sayısı</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                        {% set aktif_sayisi = (u.keychains | selectattr('status','equalto','active') | list | length) %}
+                        {% set toplam_qr = u.keychains|length %}
+                        <tr>
+                            <td data-label="ID">{{ u.id }}</td>
+                            <td data-label="Ad Soyad">{{ u.name or "-" }}</td>
+                            <td data-label="E-posta">
+                                {% if u.email and not u.email.endswith('@vistaqr.local') %}
+                                    {{ u.email }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td data-label="Telefon">{{ u.phone or "-" }}</td>
+                            <td data-label="QR Sayısı">{{ toplam_qr }}</td>
+                            <td data-label="Durum">
+                                {% if aktif_sayisi > 0 %}
+                                    <span class="badge badge-active">Aktif</span>
+                                {% else %}
+                                    <span class="badge badge-inactive">İnaktif</span>
+                                {% endif %}
+                            </td>
+                            <td data-label="İşlemler">
+                                <div class="actions">
+                                    {% if u.keychains %}
+                                        <a class="btn btn-view"
+                                           href="{{ url_for('view_keychain', qr_code_id=u.keychains[0].qr_code_id) }}"
+                                           target="_blank">
+                                            Görüntüle
+                                        </a>
+                                    {% endif %}
+                                    <form method="POST"
+                                          action="{{ url_for('delete_user', user_id=u.id) }}"
+                                          onsubmit="return confirm('Bu kullanıcı ve tüm QR kodları silinecek. Emin misiniz?');">
+                                        <button type="submit" class="btn btn-delete">Sil</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
