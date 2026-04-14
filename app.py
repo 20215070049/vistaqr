@@ -24,7 +24,7 @@ DB_URI = os.environ.get("DATABASE_URL", "sqlite:///vistaqr.db")
 if DB_URI and DB_URI.startswith("postgres://"):
     DB_URI = DB_URI.replace("postgres://", "postgresql://", 1)
 
-QR_BASE_URL = os.environ.get("QR_BASE_URL", "https://vistaqr.onrender.com/activate/")
+QR_BASE_URL = os.environ.get("QR_BASE_URL", "https://www.vistaqrapp.com/activate/")
 QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
 SECRET_KEY = os.environ.get("SECRET_KEY", "vistaqr-secret-key-2026")
 MAX_QR_BATCH = 500
@@ -38,6 +38,7 @@ ADMIN_DELETE_INACTIVE_ROUTE = "/vista-secret-panel-6334/delete-inactive"
 ADMIN_DELETE_USER_ROUTE = "/vista-secret-panel-6334/delete-user/<int:user_id>"
 
 # ------------------- EMAIL / OTP AYARLARI -------------------
+# Aktivasyonda mail doğrulamayı kapalı tutuyoruz; donma yapmaması için
 ENABLE_EMAIL_VERIFICATION = False
 ENABLE_SMS_VERIFICATION = False
 VERIFICATION_CODE_TTL_MINUTES = 10
@@ -287,12 +288,12 @@ def send_email_via_smtp(to_email, subject, body_text):
 
         if SMTP_USE_TLS:
             context = ssl.create_default_context()
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=8) as server:
                 server.starttls(context=context)
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 server.send_message(msg)
         else:
-            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=8) as server:
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 server.send_message(msg)
 
@@ -314,7 +315,8 @@ VistaQR
 """
     sent = send_email_via_smtp(email, subject, body)
     if not sent:
-        print(f"EMAIL DOGRULAMA KODU => email={email}, code={code}")
+        print(f"EMAIL DOGRULAMA KODU GONDERILEMEDI => email={email}, code={code}")
+    return sent
 
 
 def send_password_reset_code(email, code):
@@ -330,7 +332,8 @@ VistaQR
 """
     sent = send_email_via_smtp(email, subject, body)
     if not sent:
-        print(f"SIFRE RESET KODU => email={email}, code={code}")
+        print(f"SIFRE RESET KODU GONDERILEMEDI => email={email}, code={code}")
+    return sent
 
 
 def send_sms_verification_code(phone, code):
@@ -338,13 +341,16 @@ def send_sms_verification_code(phone, code):
 
 
 def trigger_optional_verifications(email, phone):
-    if ENABLE_EMAIL_VERIFICATION and email and not is_placeholder_email(email):
-        email_code = store_verification_code("email", email, "activation")
-        send_email_verification_code(email, email_code)
+    try:
+        if ENABLE_EMAIL_VERIFICATION and email and not is_placeholder_email(email):
+            email_code = store_verification_code("email", email, "activation")
+            send_email_verification_code(email, email_code)
 
-    if ENABLE_SMS_VERIFICATION and phone:
-        sms_code = store_verification_code("sms", phone, "activation")
-        send_sms_verification_code(phone, sms_code)
+        if ENABLE_SMS_VERIFICATION and phone:
+            sms_code = store_verification_code("sms", phone, "activation")
+            send_sms_verification_code(phone, sms_code)
+    except Exception as e:
+        print("OPTIONAL VERIFICATION HATASI =>", repr(e))
 
 
 def require_admin(f):
@@ -572,7 +578,7 @@ def forgot_password():
             )
 
         user = User.query.filter_by(email=email).first()
-        if not user:
+        if not user or is_placeholder_email(user.email):
             return render_template(
                 "forgot_password.html",
                 error="⚠ Bu e-posta kayıtlı değil.",
@@ -580,9 +586,16 @@ def forgot_password():
             )
 
         code = store_verification_code("email", email, "password_reset")
-        send_password_reset_code(email, code)
-        session["password_reset_email"] = email
+        sent = send_password_reset_code(email, code)
 
+        if not sent:
+            return render_template(
+                "forgot_password.html",
+                error="❌ Kod e-posta adresine gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+                lang=lang
+            )
+
+        session["password_reset_email"] = email
         return redirect(url_for("verify_reset_code", success="✅ Şifre sıfırlama kodu e-posta adresinize gönderildi."))
 
     return render_template("forgot_password.html", lang=lang)
@@ -600,6 +613,7 @@ def verify_reset_code():
     if request.method == "POST":
         code = safe_strip(request.form.get("code"))
         new_pass = request.form.get("password") or ""
+        confirm_pass = request.form.get("confirm_password") or ""
 
         if not code:
             return render_template(
@@ -615,6 +629,15 @@ def verify_reset_code():
                 "verify_reset_code.html",
                 email=email,
                 error="⚠ Yeni şifre en az 6 karakter olmalıdır.",
+                success=success,
+                lang=lang
+            )
+
+        if new_pass.strip() != confirm_pass.strip():
+            return render_template(
+                "verify_reset_code.html",
+                email=email,
+                error="⚠ Şifreler eşleşmiyor.",
                 success=success,
                 lang=lang
             )
@@ -895,6 +918,7 @@ def activate_keychain(qr_code_id):
         phone = normalize_phone(request.form.get("phone"))
         email_input = normalize_email(request.form.get("email"))
         password = request.form.get("password") or ""
+        password_confirm = request.form.get("password_confirm") or ""
         note = sanitize_note(request.form.get("note"))
 
         print("AKTIVASYON DEBUG =>", {
@@ -917,6 +941,9 @@ def activate_keychain(qr_code_id):
 
         if not is_valid_password(password):
             return render_template("activate.html", qr_code_id=qr_code_id, error="⚠ Şifre en az 6 karakter olmalıdır.", lang=lang)
+
+        if password.strip() != password_confirm.strip():
+            return render_template("activate.html", qr_code_id=qr_code_id, error="⚠ Şifreler eşleşmiyor.", lang=lang)
 
         existing_user, existing_user_error = find_existing_user_for_activation(email_input, phone)
         if existing_user_error:
@@ -953,9 +980,8 @@ def activate_keychain(qr_code_id):
                 keychain.status = "active"
                 keychain.note = note
 
-                trigger_optional_verifications(existing_user.email, existing_user.phone)
-
                 db.session.commit()
+                trigger_optional_verifications(existing_user.email, existing_user.phone)
 
                 print("AKTIVASYON BASARILI => mevcut hesap", {
                     "user_id": existing_user.id,
@@ -991,9 +1017,8 @@ def activate_keychain(qr_code_id):
             keychain.status = "active"
             keychain.note = note
 
-            trigger_optional_verifications(user.email, user.phone)
-
             db.session.commit()
+            trigger_optional_verifications(user.email, user.phone)
 
             print("AKTIVASYON BASARILI => yeni hesap", {
                 "user_id": user.id,

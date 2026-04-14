@@ -9,7 +9,7 @@
             margin: 0;
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #002d63, #0059b3);
-            color: #fff;    
+            color: #fff;
             text-align: center;
             min-height: 100vh;
             display: flex;
@@ -84,6 +84,14 @@
         button:hover {
             background: #0090dd;
         }
+
+        .hint {
+            font-size: 12px;
+            color: #dbeafe;
+            margin-top: -4px;
+            margin-bottom: 8px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -107,9 +115,39 @@
         {% endif %}
 
         <form method="POST">
-            <input type="text" name="code" placeholder="{% if lang == 'tr' %}6 haneli kod{% else %}6-digit code{% endif %}" maxlength="6">
-            <input type="password" name="password" placeholder="{% if lang == 'tr' %}Yeni şifre{% else %}New password{% endif %}">
-            <button type="submit">{% if lang == 'tr' %}Şifreyi Güncelle{% else %}Update Password{% endif %}</button>
+            <input
+                type="text"
+                name="code"
+                placeholder="{% if lang == 'tr' %}6 haneli kod{% else %}6-digit code{% endif %}"
+                maxlength="6"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="{% if lang == 'tr' %}Yeni şifre{% else %}New password{% endif %}"
+                required
+            >
+
+            <div class="hint">
+                {% if lang == 'tr' %}
+                    En az 6 karakter önerilir.
+                {% else %}
+                    At least 6 characters is recommended.
+                {% endif %}
+            </div>
+
+            <input
+                type="password"
+                name="confirm_password"
+                placeholder="{% if lang == 'tr' %}Yeni şifre tekrar{% else %}Confirm new password{% endif %}"
+                required
+            >
+
+            <button type="submit">
+                {% if lang == 'tr' %}Şifreyi Güncelle{% else %}Update Password{% endif %}
+            </button>
         </form>
     </div>
 </body>
