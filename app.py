@@ -38,7 +38,7 @@ ADMIN_DELETE_INACTIVE_ROUTE = "/vista-secret-panel-6334/delete-inactive"
 ADMIN_DELETE_USER_ROUTE = "/vista-secret-panel-6334/delete-user/<int:user_id>"
 
 # ------------------- EMAIL / OTP AYARLARI -------------------
-ENABLE_EMAIL_VERIFICATION = True
+ENABLE_EMAIL_VERIFICATION = False
 ENABLE_SMS_VERIFICATION = False
 VERIFICATION_CODE_TTL_MINUTES = 10
 
