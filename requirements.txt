@@ -1,0 +1,5 @@
+Flask
+Flask-SQLAlchemy
+itsdangerous
+qrcode
+email-validator
