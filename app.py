@@ -19,10 +19,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "gizli123"
-DB_URI = os.environ.get("DATABASE_URL")
-QR_BASE_URL = "http://192.168.1.9:5000/activate/"
+
+DB_URI = os.environ.get("DATABASE_URL", "sqlite:///vistaqr.db")
+if DB_URI and DB_URI.startswith("postgres://"):
+    DB_URI = DB_URI.replace("postgres://", "postgresql://", 1)
+
+QR_BASE_URL = os.environ.get("QR_BASE_URL", "https://vistaqr.onrender.com/activate/")
 QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
-SECRET_KEY = "vistaqr-secret-key-2026"
+SECRET_KEY = os.environ.get("SECRET_KEY", "vistaqr-secret-key-2026")
 MAX_QR_BATCH = 500
 
 # Admin route gizli
@@ -51,8 +55,9 @@ VERIFICATION_STORE = {}
 
 # ------------------- FLASK APP -------------------
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = DB_URI
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 app.secret_key = SECRET_KEY
 app.permanent_session_lifetime = timedelta(hours=2)
 
@@ -61,7 +66,7 @@ serializer = URLSafeTimedSerializer(app.secret_key)
 
 # ------------------- MODELLER -------------------
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False, default="")
@@ -69,17 +74,22 @@ class User(db.Model):
     phone = db.Column(db.String(50))
     password = db.Column(db.String(200), nullable=False)
 
-    keychains = db.relationship('Keychain', backref='owner', lazy=True)
+    keychains = db.relationship("Keychain", backref="owner", lazy=True)
 
 
 class Keychain(db.Model):
-    __tablename__ = 'keychains'
+    __tablename__ = "keychains"
 
     id = db.Column(db.Integer, primary_key=True)
     qr_code_id = db.Column(db.String(200), unique=True, nullable=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    status = db.Column(db.String(50), nullable=False, default='inactive')
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    status = db.Column(db.String(50), nullable=False, default="inactive")
     note = db.Column(db.String(300))
+
+
+# ------------------- TABLOLARI OLUSTUR -------------------
+with app.app_context():
+    db.create_all()
 
 
 # ------------------- YARDIMCI FONKSİYONLAR -------------------
@@ -160,7 +170,7 @@ def generate_unique_qr_code():
 
 
 def get_lang():
-    return session.get('lang', 'tr')
+    return session.get("lang", "tr")
 
 
 def is_placeholder_email(email):
@@ -340,8 +350,8 @@ def trigger_optional_verifications(email, phone):
 def require_admin(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if not session.get('is_admin'):
-            return redirect(url_for('admin_login'))
+        if not session.get("is_admin"):
+            return redirect(url_for("admin_login"))
         return f(*args, **kwargs)
     return wrap
 
@@ -349,39 +359,39 @@ def require_admin(f):
 # ------------------- DİL -------------------
 @app.before_request
 def set_default_language():
-    if 'lang' not in session:
-        session['lang'] = 'tr'
+    if "lang" not in session:
+        session["lang"] = "tr"
 
 
-@app.route('/set_language/<lang_code>')
+@app.route("/set_language/<lang_code>")
 def set_language(lang_code):
-    if lang_code in ['tr', 'en']:
-        session['lang'] = lang_code
-    return redirect(request.referrer or url_for('home'))
+    if lang_code in ["tr", "en"]:
+        session["lang"] = lang_code
+    return redirect(request.referrer or url_for("home"))
 
 
 # ------------------- SAYFALAR -------------------
-@app.route('/')
+@app.route("/")
 def home():
     return render_template("home.html", lang=get_lang())
 
 
-@app.route('/about')
+@app.route("/about")
 def about():
     return render_template("about.html", lang=get_lang())
 
 
 # ------------------- ADMIN GİRİŞ -------------------
-@app.route(ADMIN_LOGIN_ROUTE, methods=['GET', 'POST'])
+@app.route(ADMIN_LOGIN_ROUTE, methods=["GET", "POST"])
 def admin_login():
-    if request.method == 'POST':
-        username = safe_strip(request.form.get('username'))
-        password = request.form.get('password') or ""
+    if request.method == "POST":
+        username = safe_strip(request.form.get("username"))
+        password = request.form.get("password") or ""
 
         if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
             session.permanent = True
-            session['is_admin'] = True
-            return redirect(url_for('admin_panel'))
+            session["is_admin"] = True
+            return redirect(url_for("admin_panel"))
 
         return render_template(
             "admin_login.html",
@@ -394,18 +404,18 @@ def admin_login():
 
 @app.route(ADMIN_LOGOUT_ROUTE)
 def admin_logout():
-    session.pop('is_admin', None)
-    return redirect(url_for('home'))
+    session.pop("is_admin", None)
+    return redirect(url_for("home"))
 
 
 # ------------------- ADMIN PANEL -------------------
-@app.route(ADMIN_PANEL_ROUTE, methods=['GET', 'POST'])
+@app.route(ADMIN_PANEL_ROUTE, methods=["GET", "POST"])
 @require_admin
 def admin_panel():
     message = request.args.get("message")
 
-    if request.method == 'POST':
-        adet_raw = request.form.get('adet', '0')
+    if request.method == "POST":
+        adet_raw = request.form.get("adet", "0")
 
         try:
             adet = int(adet_raw)
@@ -413,8 +423,8 @@ def admin_panel():
             return render_template(
                 "admin_panel.html",
                 total_qr=Keychain.query.count(),
-                active_qr=Keychain.query.filter_by(status='active').count(),
-                inactive_qr=Keychain.query.filter_by(status='inactive').count(),
+                active_qr=Keychain.query.filter_by(status="active").count(),
+                inactive_qr=Keychain.query.filter_by(status="inactive").count(),
                 message="❌ Geçerli bir adet giriniz.",
                 lang=get_lang()
             )
@@ -423,8 +433,8 @@ def admin_panel():
             return render_template(
                 "admin_panel.html",
                 total_qr=Keychain.query.count(),
-                active_qr=Keychain.query.filter_by(status='active').count(),
-                inactive_qr=Keychain.query.filter_by(status='inactive').count(),
+                active_qr=Keychain.query.filter_by(status="active").count(),
+                inactive_qr=Keychain.query.filter_by(status="inactive").count(),
                 message=f"❌ Adet 1 ile {MAX_QR_BATCH} arasında olmalıdır.",
                 lang=get_lang()
             )
@@ -435,7 +445,7 @@ def admin_panel():
         try:
             for _ in range(adet):
                 code = generate_unique_qr_code()
-                new_qr = Keychain(qr_code_id=code, status='inactive')
+                new_qr = Keychain(qr_code_id=code, status="inactive")
                 db.session.add(new_qr)
                 db.session.flush()
 
@@ -465,15 +475,15 @@ def admin_panel():
             return render_template(
                 "admin_panel.html",
                 total_qr=Keychain.query.count(),
-                active_qr=Keychain.query.filter_by(status='active').count(),
-                inactive_qr=Keychain.query.filter_by(status='inactive').count(),
+                active_qr=Keychain.query.filter_by(status="active").count(),
+                inactive_qr=Keychain.query.filter_by(status="inactive").count(),
                 message="❌ QR üretimi sırasında bir hata oluştu.",
                 lang=get_lang()
             )
 
     total_qr = Keychain.query.count()
-    active_qr = Keychain.query.filter_by(status='active').count()
-    inactive_qr = Keychain.query.filter_by(status='inactive').count()
+    active_qr = Keychain.query.filter_by(status="active").count()
+    inactive_qr = Keychain.query.filter_by(status="inactive").count()
 
     return render_template(
         "admin_panel.html",
@@ -486,20 +496,20 @@ def admin_panel():
 
 
 # ------------------- İNAKTİF QR SİLME -------------------
-@app.route(ADMIN_DELETE_INACTIVE_ROUTE, methods=['POST'])
+@app.route(ADMIN_DELETE_INACTIVE_ROUTE, methods=["POST"])
 @require_admin
 def delete_inactive_qrs():
     password = request.form.get("admin_password") or ""
     confirm = request.form.get("confirm_delete")
 
     if password != ADMIN_PASSWORD:
-        return redirect(url_for('admin_panel', message="❌ Şifre yanlış!"))
+        return redirect(url_for("admin_panel", message="❌ Şifre yanlış!"))
 
     if confirm != "1":
-        return redirect(url_for('admin_panel', message="⚠ Silme işlemi onaylanmadı."))
+        return redirect(url_for("admin_panel", message="⚠ Silme işlemi onaylanmadı."))
 
     try:
-        inactive_qrs = Keychain.query.filter_by(status='inactive', owner_id=None).all()
+        inactive_qrs = Keychain.query.filter_by(status="inactive", owner_id=None).all()
         count = len(inactive_qrs)
 
         for qr in inactive_qrs:
@@ -507,12 +517,12 @@ def delete_inactive_qrs():
             db.session.delete(qr)
 
         db.session.commit()
-        return redirect(url_for('admin_panel', message=f"🟢 {count} adet sahipsiz inaktif QR başarıyla silindi!"))
+        return redirect(url_for("admin_panel", message=f"🟢 {count} adet sahipsiz inaktif QR başarıyla silindi!"))
 
     except Exception as e:
         db.session.rollback()
         print("INAKTIF QR SILME HATASI =>", repr(e))
-        return redirect(url_for('admin_panel', message="❌ İnaktif QR silme sırasında hata oluştu."))
+        return redirect(url_for("admin_panel", message="❌ İnaktif QR silme sırasında hata oluştu."))
 
 
 # ------------------- ADMIN: KULLANICI LİSTESİ -------------------
@@ -523,13 +533,13 @@ def admin_users():
     return render_template("admin_users.html", users=users, lang=get_lang())
 
 
-@app.route(ADMIN_DELETE_USER_ROUTE, methods=['POST'])
+@app.route(ADMIN_DELETE_USER_ROUTE, methods=["POST"])
 @require_admin
 def delete_user(user_id):
     user = db.session.get(User, user_id)
 
     if not user:
-        return redirect(url_for('admin_users'))
+        return redirect(url_for("admin_users"))
 
     try:
         user_keychains = Keychain.query.filter_by(owner_id=user_id).all()
@@ -543,16 +553,16 @@ def delete_user(user_id):
         db.session.rollback()
         print("KULLANICI SILME HATASI =>", repr(e))
 
-    return redirect(url_for('admin_users'))
+    return redirect(url_for("admin_users"))
 
 
 # ------------------- ŞİFREMİ UNUTTUM -------------------
-@app.route('/forgot-password', methods=['GET', 'POST'])
+@app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     lang = get_lang()
 
-    if request.method == 'POST':
-        email = normalize_email(request.form.get('email'))
+    if request.method == "POST":
+        email = normalize_email(request.form.get("email"))
 
         if not is_valid_email(email):
             return render_template(
@@ -571,25 +581,25 @@ def forgot_password():
 
         code = store_verification_code("email", email, "password_reset")
         send_password_reset_code(email, code)
-        session['password_reset_email'] = email
+        session["password_reset_email"] = email
 
-        return redirect(url_for('verify_reset_code', success="✅ Şifre sıfırlama kodu e-posta adresinize gönderildi."))
+        return redirect(url_for("verify_reset_code", success="✅ Şifre sıfırlama kodu e-posta adresinize gönderildi."))
 
     return render_template("forgot_password.html", lang=lang)
 
 
-@app.route('/verify-reset-code', methods=['GET', 'POST'])
+@app.route("/verify-reset-code", methods=["GET", "POST"])
 def verify_reset_code():
     lang = get_lang()
-    email = session.get('password_reset_email')
+    email = session.get("password_reset_email")
     success = request.args.get("success")
 
     if not email:
-        return redirect(url_for('forgot_password'))
+        return redirect(url_for("forgot_password"))
 
-    if request.method == 'POST':
-        code = safe_strip(request.form.get('code'))
-        new_pass = request.form.get('password') or ""
+    if request.method == "POST":
+        code = safe_strip(request.form.get("code"))
+        new_pass = request.form.get("password") or ""
 
         if not code:
             return render_template(
@@ -620,7 +630,7 @@ def verify_reset_code():
 
         user = User.query.filter_by(email=email).first()
         if not user:
-            session.pop('password_reset_email', None)
+            session.pop("password_reset_email", None)
             return render_template(
                 "error.html",
                 message="Kullanıcı bulunamadı.",
@@ -630,7 +640,7 @@ def verify_reset_code():
         try:
             user.password = generate_password_hash(new_pass.strip())
             db.session.commit()
-            session.pop('password_reset_email', None)
+            session.pop("password_reset_email", None)
             return render_template("success.html", name=user.name, lang=lang)
         except Exception as e:
             db.session.rollback()
@@ -647,16 +657,16 @@ def verify_reset_code():
 
 
 # ------------------- USER PANEL -------------------
-@app.route('/user-panel', methods=['GET', 'POST'])
+@app.route("/user-panel", methods=["GET", "POST"])
 def user_panel():
-    uid = session.get('user_id')
+    uid = session.get("user_id")
     if not uid:
-        return redirect(url_for('user_login'))
+        return redirect(url_for("user_login"))
 
     user = db.session.get(User, uid)
     if not user:
-        session.pop('user_id', None)
-        return redirect(url_for('user_login'))
+        session.pop("user_id", None)
+        return redirect(url_for("user_login"))
 
     keychains = Keychain.query.filter_by(owner_id=uid).order_by(Keychain.id.desc()).all()
     keychain = keychains[0] if keychains else None
@@ -679,11 +689,11 @@ def user_panel():
     success = request.args.get("success")
     error = request.args.get("error")
 
-    if request.method == 'POST':
-        name = safe_strip(request.form.get('name'))
-        phone_raw = request.form.get('phone')
-        email_raw = normalize_email(request.form.get('email'))
-        password = request.form.get('password') or ""
+    if request.method == "POST":
+        name = safe_strip(request.form.get("name"))
+        phone_raw = request.form.get("phone")
+        email_raw = normalize_email(request.form.get("email"))
+        password = request.form.get("password") or ""
 
         if name:
             user.name = name
@@ -745,7 +755,7 @@ def user_panel():
 
         try:
             db.session.commit()
-            return redirect(url_for('user_panel', success="✅ Bilgiler başarıyla güncellendi."))
+            return redirect(url_for("user_panel", success="✅ Bilgiler başarıyla güncellendi."))
         except Exception as e:
             db.session.rollback()
             print("USER PANEL GUNCELLEME HATASI =>", repr(e))
@@ -770,67 +780,67 @@ def user_panel():
     )
 
 
-@app.route('/user-panel/update-note/<int:keychain_id>', methods=['POST'])
+@app.route("/user-panel/update-note/<int:keychain_id>", methods=["POST"])
 def update_keychain_note(keychain_id):
-    uid = session.get('user_id')
+    uid = session.get("user_id")
     if not uid:
-        return redirect(url_for('user_login'))
+        return redirect(url_for("user_login"))
 
     keychain = Keychain.query.filter_by(id=keychain_id, owner_id=uid).first()
     if not keychain:
-        return redirect(url_for('user_panel', error="⚠ QR kaydı bulunamadı."))
+        return redirect(url_for("user_panel", error="⚠ QR kaydı bulunamadı."))
 
     try:
-        keychain.note = sanitize_note(request.form.get('note'))
+        keychain.note = sanitize_note(request.form.get("note"))
         db.session.commit()
-        return redirect(url_for('user_panel', success="✅ QR notu güncellendi."))
+        return redirect(url_for("user_panel", success="✅ QR notu güncellendi."))
     except Exception as e:
         db.session.rollback()
         print("QR NOTE GUNCELLEME HATASI =>", repr(e))
-        return redirect(url_for('user_panel', error="❌ QR notu güncellenemedi."))
+        return redirect(url_for("user_panel", error="❌ QR notu güncellenemedi."))
 
 
-@app.route('/user-panel/toggle-keychain/<int:keychain_id>', methods=['POST'])
+@app.route("/user-panel/toggle-keychain/<int:keychain_id>", methods=["POST"])
 def toggle_keychain_status(keychain_id):
-    uid = session.get('user_id')
+    uid = session.get("user_id")
     if not uid:
-        return redirect(url_for('user_login'))
+        return redirect(url_for("user_login"))
 
     keychain = Keychain.query.filter_by(id=keychain_id, owner_id=uid).first()
     if not keychain:
-        return redirect(url_for('user_panel', error="⚠ QR kaydı bulunamadı."))
+        return redirect(url_for("user_panel", error="⚠ QR kaydı bulunamadı."))
 
     try:
-        if keychain.status == 'active':
-            keychain.status = 'inactive'
+        if keychain.status == "active":
+            keychain.status = "inactive"
             message = "🟥 QR inaktif hale getirildi."
         else:
-            keychain.status = 'active'
+            keychain.status = "active"
             message = "🟩 QR tekrar aktif hale getirildi."
 
         db.session.commit()
-        return redirect(url_for('user_panel', success=message))
+        return redirect(url_for("user_panel", success=message))
     except Exception as e:
         db.session.rollback()
         print("QR TOGGLE HATASI =>", repr(e))
-        return redirect(url_for('user_panel', error="❌ QR durumu güncellenemedi."))
+        return redirect(url_for("user_panel", error="❌ QR durumu güncellenemedi."))
 
 
 # ------------------- USER LOGIN -------------------
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def user_login():
     lang = get_lang()
 
-    if request.method == 'POST':
-        identifier = safe_strip(request.form.get('email'))
-        password = request.form.get('password') or ""
+    if request.method == "POST":
+        identifier = safe_strip(request.form.get("email"))
+        password = request.form.get("password") or ""
 
         if not identifier or not password:
             return render_template("user_login.html", error="⚠ Lütfen tüm alanları doldurun.", lang=lang)
 
         user = None
 
-        if '@' in identifier:
+        if "@" in identifier:
             user = User.query.filter_by(email=normalize_email(identifier)).first()
         else:
             normalized_phone = normalize_phone(identifier)
@@ -843,8 +853,8 @@ def user_login():
 
         if user and user.password and check_password_hash(user.password, password):
             session.permanent = True
-            session['user_id'] = user.id
-            return redirect(url_for('user_panel'))
+            session["user_id"] = user.id
+            return redirect(url_for("user_panel"))
 
         return render_template("user_login.html", error="⚠ Geçersiz bilgiler.", lang=lang)
 
@@ -852,7 +862,7 @@ def user_login():
 
 
 # ------------------- QR AKTİVASYON -------------------
-@app.route('/activate/<qr_code_id>', methods=['GET', 'POST'])
+@app.route("/activate/<qr_code_id>", methods=["GET", "POST"])
 def activate_keychain(qr_code_id):
     lang = get_lang()
     keychain = Keychain.query.filter_by(qr_code_id=qr_code_id).first()
@@ -860,7 +870,7 @@ def activate_keychain(qr_code_id):
     if not keychain:
         return render_template("error.html", message="Bu QR sistemde kayıtlı değil.", lang=lang)
 
-    if keychain.owner_id and keychain.status == 'active':
+    if keychain.owner_id and keychain.status == "active":
         owner = db.session.get(User, keychain.owner_id)
         if not owner:
             return render_template("error.html", message="Bu QR için kullanıcı bulunamadı.", lang=lang)
@@ -873,19 +883,19 @@ def activate_keychain(qr_code_id):
             lang=lang
         )
 
-    if keychain.owner_id and keychain.status == 'inactive':
+    if keychain.owner_id and keychain.status == "inactive":
         return render_template(
             "error.html",
             message="Bu QR şu anda geçici olarak inaktif durumda. Sahibi tekrar aktif edene kadar bilgi gösterilmez.",
             lang=lang
         )
 
-    if request.method == 'POST':
-        name = safe_strip(request.form.get('owner_name'))
-        phone = normalize_phone(request.form.get('phone'))
-        email_input = normalize_email(request.form.get('email'))
-        password = request.form.get('password') or ""
-        note = sanitize_note(request.form.get('note'))
+    if request.method == "POST":
+        name = safe_strip(request.form.get("owner_name"))
+        phone = normalize_phone(request.form.get("phone"))
+        email_input = normalize_email(request.form.get("email"))
+        password = request.form.get("password") or ""
+        note = sanitize_note(request.form.get("note"))
 
         print("AKTIVASYON DEBUG =>", {
             "qr_code_id": qr_code_id,
@@ -940,7 +950,7 @@ def activate_keychain(qr_code_id):
                     existing_user.email = email_input
 
                 keychain.owner_id = existing_user.id
-                keychain.status = 'active'
+                keychain.status = "active"
                 keychain.note = note
 
                 trigger_optional_verifications(existing_user.email, existing_user.phone)
@@ -978,7 +988,7 @@ def activate_keychain(qr_code_id):
             db.session.flush()
 
             keychain.owner_id = user.id
-            keychain.status = 'active'
+            keychain.status = "active"
             keychain.note = note
 
             trigger_optional_verifications(user.email, user.phone)
@@ -1014,14 +1024,14 @@ def activate_keychain(qr_code_id):
 
 
 # ------------------- QR VIEW -------------------
-@app.route('/view/<qr_code_id>')
+@app.route("/view/<qr_code_id>")
 def view_keychain(qr_code_id):
     keychain = Keychain.query.filter_by(qr_code_id=qr_code_id).first()
 
     if not keychain:
         return render_template("error.html", message="Bu QR sistemde kayıtlı değil.", lang=get_lang())
 
-    if keychain.status != 'active':
+    if keychain.status != "active":
         return render_template(
             "error.html",
             message="Bu QR şu anda inaktif durumda.",
@@ -1046,7 +1056,7 @@ def view_keychain(qr_code_id):
 
 
 # ------------------- TEST EMAIL -------------------
-@app.route('/test-email')
+@app.route("/test-email")
 def test_email():
     ok = send_email_via_smtp(
         to_email=SMTP_FROM_EMAIL,
@@ -1057,14 +1067,14 @@ def test_email():
 
 
 # ------------------- USER LOGOUT -------------------
-@app.route('/logout')
+@app.route("/logout")
 def user_logout():
-    session.pop('user_id', None)
-    return redirect(url_for('user_login'))
+    session.pop("user_id", None)
+    return redirect(url_for("user_login"))
 
 
 # ------------------- ÇALIŞTIR -------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     ensure_qr_folder()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False)
