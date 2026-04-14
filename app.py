@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "gizli123"
-DB_URI = 'sqlite:///vistaqr.db'
+DB_URI = os.environ.get("DATABASE_URL")
 QR_BASE_URL = "http://192.168.1.9:5000/activate/"
 QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
 SECRET_KEY = "vistaqr-secret-key-2026"
