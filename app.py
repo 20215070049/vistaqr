@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "gizli123"
-DB_URI = 'mssql+pyodbc://DESKTOP-D2BEU1I\\SQLEXPRESS/vistaqr?driver=ODBC+Driver+17+for+SQL+Server'
+DB_URI = 'sqlite:///vistaqr.db'
 QR_BASE_URL = "http://192.168.1.9:5000/activate/"
 QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
 SECRET_KEY = "vistaqr-secret-key-2026"
@@ -1066,4 +1066,5 @@ def user_logout():
 # ------------------- ÇALIŞTIR -------------------
 if __name__ == '__main__':
     ensure_qr_folder()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
