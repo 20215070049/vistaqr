@@ -22,7 +22,7 @@ DB_URI = os.environ.get("DATABASE_URL", "sqlite:///vistaqr.db")
 if DB_URI and DB_URI.startswith("postgres://"):
     DB_URI = DB_URI.replace("postgres://", "postgresql://", 1)
 
-QR_BASE_URL = "https://vistaqr.onrender.com/activate/"
+QR_BASE_URL = "https://vistaqrapp.com/activate/"
 QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
 SECRET_KEY = os.environ.get("SECRET_KEY", "vistaqr-secret-key-2026")
 MAX_QR_BATCH = 500
