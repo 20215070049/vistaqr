@@ -3,9 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 from functools import wraps
-from email.message import EmailMessage
-import smtplib
-import ssl
+import requests
 import qrcode
 import os
 import zipfile
@@ -38,19 +36,14 @@ ADMIN_DELETE_INACTIVE_ROUTE = "/vista-secret-panel-6334/delete-inactive"
 ADMIN_DELETE_USER_ROUTE = "/vista-secret-panel-6334/delete-user/<int:user_id>"
 
 # ------------------- EMAIL / OTP AYARLARI -------------------
-# Aktivasyonda mail doğrulamayı kapalı tutuyoruz; donma yapmaması için
 ENABLE_EMAIL_VERIFICATION = False
 ENABLE_SMS_VERIFICATION = False
 VERIFICATION_CODE_TTL_MINUTES = 10
 
-# Brevo SMTP ayarları
-SMTP_HOST = "smtp-relay.brevo.com"
-SMTP_PORT = 587
-SMTP_USERNAME = "a7f3ea001@smtp-brevo.com"
-SMTP_PASSWORD = "xsmtpsib-6d406d5dc1b9fa81e47a690466afef315c17409ab6105056cad61790087cced9-KixReEcBHhOOFPu8"
-SMTP_FROM_EMAIL = "qrvista6@gmail.com"
-SMTP_FROM_NAME = "VistaQR"
-SMTP_USE_TLS = True
+# Brevo API ayarları
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+BREVO_SENDER_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "noreply@vistaqrapp.com")
+BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "VistaQR")
 
 VERIFICATION_STORE = {}
 
@@ -275,31 +268,37 @@ def verify_stored_code(channel, target, purpose, entered_code):
 
 
 def send_email_via_smtp(to_email, subject, body_text):
-    if not all([SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM_EMAIL]):
-        print("SMTP AYARLARI EKSIK => mail gönderilmedi")
+    if not BREVO_API_KEY:
+        print("BREVO_API_KEY eksik")
         return False
 
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    payload = {
+        "sender": {
+            "name": BREVO_SENDER_NAME,
+            "email": BREVO_SENDER_EMAIL
+        },
+        "to": [
+            {"email": to_email}
+        ],
+        "subject": subject,
+        "textContent": body_text
+    }
+
     try:
-        msg = EmailMessage()
-        msg["Subject"] = subject
-        msg["From"] = f"{SMTP_FROM_NAME} <{SMTP_FROM_EMAIL}>"
-        msg["To"] = to_email
-        msg.set_content(body_text)
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        print("BREVO RESPONSE:", response.status_code, response.text)
 
-        if SMTP_USE_TLS:
-            context = ssl.create_default_context()
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=8) as server:
-                server.starttls(context=context)
-                server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                server.send_message(msg)
-        else:
-            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=8) as server:
-                server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                server.send_message(msg)
-
-        return True
+        if 200 <= response.status_code < 300:
+            return True
+        return False
     except Exception as e:
-        print("EMAIL GONDERIM HATASI =>", repr(e))
+        print("BREVO ERROR:", repr(e))
         return False
 
 
@@ -1084,7 +1083,7 @@ def view_keychain(qr_code_id):
 @app.route("/test-email")
 def test_email():
     ok = send_email_via_smtp(
-        to_email=SMTP_FROM_EMAIL,
+        to_email=BREVO_SENDER_EMAIL,
         subject="VistaQR Test",
         body_text="Email sistemi çalışıyor."
     )
