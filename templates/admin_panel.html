@@ -43,6 +43,7 @@
             border: none;
             margin-top: 10px;
             font-size: 15px;
+            box-sizing: border-box;
         }
 
         button {
@@ -62,6 +63,28 @@
             background: #0055aa;
         }
 
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+            margin-top: 5px;
+        }
+
+        .section-subtext {
+            font-size: 13px;
+            color: #dce9ff;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .current-admin-box {
+            background: rgba(255,255,255,0.18);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #eef5ff;
+        }
+
         .user-list-btn,
         .delete-inactive-btn {
             display: block;
@@ -73,6 +96,9 @@
             color: white;
             font-size: 15px;
             transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            box-sizing: border-box;
         }
 
         .user-list-btn {
@@ -87,6 +113,14 @@
         }
         .delete-inactive-btn:hover {
             background: #ff3333;
+        }
+
+        .update-admin-btn {
+            background: #16a34a;
+            width: 100%;
+        }
+        .update-admin-btn:hover {
+            background: #22c55e;
         }
 
         .logout {
@@ -168,6 +202,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
+            margin-top: 12px;
         }
 
         .modal-btn {
@@ -177,6 +212,8 @@
             font-size: 14px;
             cursor: pointer;
             transition: 0.25s;
+            width: auto;
+            margin-top: 0;
         }
 
         .modal-btn.cancel {
@@ -194,6 +231,35 @@
         .modal-btn.confirm:hover {
             background: #ff3333;
         }
+
+        .divider {
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 22px 0;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .card,
+            .chart-card {
+                width: 92%;
+                padding: 20px;
+            }
+
+            button,
+            .user-list-btn,
+            .delete-inactive-btn {
+                width: 100%;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            .modal-container {
+                width: 90%;
+            }
+        }
     </style>
 </head>
 
@@ -208,7 +274,6 @@
             <p>İnaktif: {{ inactive_qr }}</p>
         </div>
 
-        <!-- 🔥 BURAYA MESAJ KUTUSU EKLENDİ -->
         {% if message %}
             <div style="
                 background: rgba(255,255,255,0.25);
@@ -238,6 +303,26 @@
             <input type="hidden" name="confirm_delete" value="1">
         </form>
 
+        <div class="divider"></div>
+
+        <div class="section-title">Admin Giriş Bilgilerini Güncelle</div>
+        <div class="section-subtext">
+            Buradan yönetici kullanıcı adını ve şifresini değiştirebilirsiniz.
+            Şifre değiştirmek istemiyorsanız yeni şifre alanlarını boş bırakın.
+        </div>
+
+        <div class="current-admin-box">
+            Mevcut admin kullanıcı adı: <b>{{ admin_username or "admin" }}</b>
+        </div>
+
+        <form method="POST" action="{{ url_for('change_admin_credentials') }}">
+            <input type="password" name="current_password" placeholder="Mevcut admin şifresi" required>
+            <input type="text" name="new_username" placeholder="Yeni admin kullanıcı adı" value="{{ admin_username or '' }}" required>
+            <input type="password" name="new_password" placeholder="Yeni şifre (değişmeyecekse boş bırak)">
+            <input type="password" name="confirm_password" placeholder="Yeni şifre tekrar">
+            <button type="submit" class="update-admin-btn">🔐 Admin Bilgilerini Güncelle</button>
+        </form>
+
         <div class="logout">
             <a href="{{ url_for('admin_logout') }}">Çıkış Yap</a>
         </div>
@@ -264,8 +349,8 @@
             <input type="password" id="adminPasswordInput" class="modal-input" placeholder="Şifrenizi girin">
 
             <div class="modal-actions">
-                <button class="modal-btn cancel" onclick="closeDeleteModal()">Vazgeç</button>
-                <button class="modal-btn confirm" onclick="submitDeleteForm()">Onayla</button>
+                <button type="button" class="modal-btn cancel" onclick="closeDeleteModal()">Vazgeç</button>
+                <button type="button" class="modal-btn confirm" onclick="submitDeleteForm()">Onayla</button>
             </div>
         </div>
     </div>
@@ -281,6 +366,15 @@
                     backgroundColor: ['#3CB371', '#FF6F6F'],
                     hoverOffset: 10
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                }
             }
         });
 
@@ -304,6 +398,13 @@
             document.getElementById('adminPasswordHidden').value = pass;
             document.getElementById('deleteInactiveForm').submit();
         }
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        });
     </script>
 
 </body>

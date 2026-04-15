@@ -15,9 +15,6 @@ from datetime import timedelta, datetime
 # ------------------- AYARLAR -------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "gizli123"
-
 DB_URI = os.environ.get("DATABASE_URL", "sqlite:///vistaqr.db")
 if DB_URI and DB_URI.startswith("postgres://"):
     DB_URI = DB_URI.replace("postgres://", "postgresql://", 1)
@@ -27,6 +24,10 @@ QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
 SECRET_KEY = os.environ.get("SECRET_KEY", "vistaqr-secret-key-2026")
 MAX_QR_BATCH = 500
 
+# İlk kurulum için varsayılan admin bilgileri (sadece ilk admin kaydı yoksa kullanılır)
+DEFAULT_ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+DEFAULT_ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "gizli123")
+
 # Admin route gizli
 ADMIN_LOGIN_ROUTE = "/vista-secret-panel-6334"
 ADMIN_PANEL_ROUTE = "/vista-secret-panel-6334/panel"
@@ -34,6 +35,7 @@ ADMIN_USERS_ROUTE = "/vista-secret-panel-6334/users"
 ADMIN_LOGOUT_ROUTE = "/vista-secret-panel-6334/logout"
 ADMIN_DELETE_INACTIVE_ROUTE = "/vista-secret-panel-6334/delete-inactive"
 ADMIN_DELETE_USER_ROUTE = "/vista-secret-panel-6334/delete-user/<int:user_id>"
+ADMIN_CHANGE_CREDENTIALS_ROUTE = "/vista-secret-panel-6334/change-credentials"
 
 # ------------------- EMAIL / OTP AYARLARI -------------------
 ENABLE_EMAIL_VERIFICATION = False
@@ -81,9 +83,26 @@ class Keychain(db.Model):
     note = db.Column(db.String(300))
 
 
+class AdminSettings(db.Model):
+    __tablename__ = "admin_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False, unique=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+
 # ------------------- TABLOLARI OLUSTUR -------------------
 with app.app_context():
     db.create_all()
+
+    existing_admin = AdminSettings.query.first()
+    if not existing_admin:
+        default_admin = AdminSettings(
+            username=DEFAULT_ADMIN_USERNAME,
+            password_hash=generate_password_hash(DEFAULT_ADMIN_PASSWORD)
+        )
+        db.session.add(default_admin)
+        db.session.commit()
 
 
 # ------------------- YARDIMCI FONKSİYONLAR -------------------
@@ -232,6 +251,10 @@ def get_qr_status_meta(status):
         "button_text_en": "Enable",
         "button_color": "#16a34a"
     }
+
+
+def get_admin_settings():
+    return AdminSettings.query.first()
 
 
 # ------------------- EMAIL / OTP -------------------
@@ -393,9 +416,12 @@ def admin_login():
         username = safe_strip(request.form.get("username"))
         password = request.form.get("password") or ""
 
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        admin = get_admin_settings()
+
+        if admin and username == admin.username and check_password_hash(admin.password_hash, password):
             session.permanent = True
             session["is_admin"] = True
+            session["admin_id"] = admin.id
             return redirect(url_for("admin_panel"))
 
         return render_template(
@@ -410,6 +436,7 @@ def admin_login():
 @app.route(ADMIN_LOGOUT_ROUTE)
 def admin_logout():
     session.pop("is_admin", None)
+    session.pop("admin_id", None)
     return redirect(url_for("home"))
 
 
@@ -418,6 +445,7 @@ def admin_logout():
 @require_admin
 def admin_panel():
     message = request.args.get("message")
+    admin = get_admin_settings()
 
     if request.method == "POST":
         adet_raw = request.form.get("adet", "0")
@@ -431,7 +459,8 @@ def admin_panel():
                 active_qr=Keychain.query.filter_by(status="active").count(),
                 inactive_qr=Keychain.query.filter_by(status="inactive").count(),
                 message="❌ Geçerli bir adet giriniz.",
-                lang=get_lang()
+                lang=get_lang(),
+                admin_username=admin.username if admin else ""
             )
 
         if adet < 1 or adet > MAX_QR_BATCH:
@@ -441,7 +470,8 @@ def admin_panel():
                 active_qr=Keychain.query.filter_by(status="active").count(),
                 inactive_qr=Keychain.query.filter_by(status="inactive").count(),
                 message=f"❌ Adet 1 ile {MAX_QR_BATCH} arasında olmalıdır.",
-                lang=get_lang()
+                lang=get_lang(),
+                admin_username=admin.username if admin else ""
             )
 
         ensure_qr_folder()
@@ -483,7 +513,8 @@ def admin_panel():
                 active_qr=Keychain.query.filter_by(status="active").count(),
                 inactive_qr=Keychain.query.filter_by(status="inactive").count(),
                 message="❌ QR üretimi sırasında bir hata oluştu.",
-                lang=get_lang()
+                lang=get_lang(),
+                admin_username=admin.username if admin else ""
             )
 
     total_qr = Keychain.query.count()
@@ -496,8 +527,53 @@ def admin_panel():
         active_qr=active_qr,
         inactive_qr=inactive_qr,
         message=message,
-        lang=get_lang()
+        lang=get_lang(),
+        admin_username=admin.username if admin else ""
     )
+
+
+# ------------------- ADMIN BİLGİLERİNİ GÜNCELLE -------------------
+@app.route(ADMIN_CHANGE_CREDENTIALS_ROUTE, methods=["POST"])
+@require_admin
+def change_admin_credentials():
+    current_password = request.form.get("current_password") or ""
+    new_username = safe_strip(request.form.get("new_username"))
+    new_password = request.form.get("new_password") or ""
+    confirm_password = request.form.get("confirm_password") or ""
+
+    admin = get_admin_settings()
+    if not admin:
+        return redirect(url_for("admin_panel", message="❌ Admin ayarları bulunamadı."))
+
+    if not check_password_hash(admin.password_hash, current_password):
+        return redirect(url_for("admin_panel", message="❌ Mevcut admin şifresi yanlış."))
+
+    if not new_username:
+        return redirect(url_for("admin_panel", message="⚠ Yeni kullanıcı adı boş olamaz."))
+
+    if len(new_username) < 3:
+        return redirect(url_for("admin_panel", message="⚠ Kullanıcı adı en az 3 karakter olmalıdır."))
+
+    if new_password:
+        if len(new_password.strip()) < 6:
+            return redirect(url_for("admin_panel", message="⚠ Yeni şifre en az 6 karakter olmalıdır."))
+
+        if new_password.strip() != confirm_password.strip():
+            return redirect(url_for("admin_panel", message="⚠ Yeni şifreler eşleşmiyor."))
+
+    try:
+        admin.username = new_username
+
+        if new_password.strip():
+            admin.password_hash = generate_password_hash(new_password.strip())
+
+        db.session.commit()
+
+        return redirect(url_for("admin_panel", message="✅ Admin bilgileri başarıyla güncellendi."))
+    except Exception as e:
+        db.session.rollback()
+        print("ADMIN GUNCELLEME HATASI =>", repr(e))
+        return redirect(url_for("admin_panel", message="❌ Admin bilgileri güncellenemedi."))
 
 
 # ------------------- İNAKTİF QR SİLME -------------------
@@ -507,7 +583,8 @@ def delete_inactive_qrs():
     password = request.form.get("admin_password") or ""
     confirm = request.form.get("confirm_delete")
 
-    if password != ADMIN_PASSWORD:
+    admin = get_admin_settings()
+    if not admin or not check_password_hash(admin.password_hash, password):
         return redirect(url_for("admin_panel", message="❌ Şifre yanlış!"))
 
     if confirm != "1":
