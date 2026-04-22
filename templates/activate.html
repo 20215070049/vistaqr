@@ -1,259 +1,747 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VistaQR – QR Kod Aktivasyonu</title>
+    <title>Vista QR – {{ 'QR Activation' if lang == 'en' else 'QR Aktivasyonu' }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    {% set current_lang = lang|default('tr') %}
+
+    {% set t = {
+        'tr': {
+            'system_name': 'QR ANAHTARLIK SİSTEMİ',
+            'title_top': 'Anahtarlığınızı',
+            'title_bottom': 'Aktive Edin',
+            'desc': 'Şifre unutulması durumunda güncelleme yapabilmek için mail adresinizi girebilirsiniz. Aksi takdirde kullanıcı paneli şifresi unutulduğunda size şifre güncelleme kodu gönderilemez.',
+            'form_title': 'Aktivasyon Bilgileri',
+            'owner_name': 'Ad Soyad',
+            'owner_name_ph': 'Adınızı ve soyadınızı giriniz',
+            'phone': 'Telefon Numaranız',
+            'phone_ph': '5XX XXX XX XX',
+            'email': 'E-posta Adresiniz',
+            'email_ph': 'ornek@mail.com',
+            'optional': 'İsteğe bağlı',
+            'password': 'Şifre',
+            'password_ph': 'En az 6 karakter giriniz',
+            'password_confirm': 'Şifre Tekrar',
+            'password_confirm_ph': 'Şifrenizi tekrar giriniz',
+            'note': 'Ek Not',
+            'note_ph': 'Eklemek istediğiniz bir not varsa buraya yazabilirsiniz...',
+            'activate': 'ANAHTARLIĞI AKTİVE ET',
+            'secure_info_1': 'Bilgileriniz 256bit SSL ile korunur.',
+            'secure_info_2': 'Kişisel bilgileriniz üçüncü kişilerle paylaşılmaz.',
+            'feature_1_title': 'GÜVENLİ',
+            'feature_1_desc': '256bit SSL ile tam güvenlik',
+            'feature_2_title': 'HIZLI',
+            'feature_2_desc': 'Sadece birkaç saniyede aktivasyon tamamlanır',
+            'feature_3_title': 'KOLAY',
+            'feature_3_desc': 'Tek adımda anahtarlığınızı size özel hale getirin.',
+            'footer': 'GÜVENLİ • HIZLI • KOLAY',
+            'min_char': 'En az 6 karakter olmalıdır.',
+            'qr_info': 'Aktive edilen QR'
+        },
+        'en': {
+            'system_name': 'QR KEYCHAIN SYSTEM',
+            'title_top': 'Activate Your',
+            'title_bottom': 'Keychain',
+            'desc': 'You can enter your email address so you can update your password if it is forgotten. Otherwise, if your user panel password is forgotten, a password reset code cannot be sent to you.',
+            'form_title': 'Activation Details',
+            'owner_name': 'Full Name',
+            'owner_name_ph': 'Enter your full name',
+            'phone': 'Phone Number',
+            'phone_ph': '5XX XXX XX XX',
+            'email': 'Email Address',
+            'email_ph': 'example@mail.com',
+            'optional': 'Optional',
+            'password': 'Password',
+            'password_ph': 'Enter at least 6 characters',
+            'password_confirm': 'Confirm Password',
+            'password_confirm_ph': 'Re-enter your password',
+            'note': 'Additional Note',
+            'note_ph': 'If you would like to add a note, you can write it here...',
+            'activate': 'ACTIVATE KEYCHAIN',
+            'secure_info_1': 'Your information is protected with 256-bit SSL.',
+            'secure_info_2': 'Your personal data is not shared with third parties.',
+            'feature_1_title': 'SECURE',
+            'feature_1_desc': 'Full protection with 256-bit SSL',
+            'feature_2_title': 'FAST',
+            'feature_2_desc': 'Activation is completed in just a few seconds',
+            'feature_3_title': 'EASY',
+            'feature_3_desc': 'Personalize your keychain in a single step.',
+            'footer': 'SECURE • FAST • EASY',
+            'min_char': 'Must be at least 6 characters.',
+            'qr_info': 'Activated QR'
+        }
+    } %}
 
     <style>
         * {
             box-sizing: border-box;
         }
 
+        :root {
+            --gold: #d7a84a;
+            --gold-soft: #f0c46a;
+            --gold-deep: #a56f17;
+            --navy: #03142f;
+            --navy-2: #041b42;
+            --navy-3: #08275d;
+            --border: rgba(215, 168, 74, 0.45);
+            --text-soft: rgba(255,255,255,0.78);
+        }
+
         body {
             margin: 0;
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #001533, #003b75);
-            color: #ffffff;
+            color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.18), transparent 16%),
+                radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 18%),
+                linear-gradient(135deg, #010916 0%, #02193d 45%, #03112a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .vista-logo {
-            width: 135px;
-            display: block;
-            margin: 24px auto -4px auto;
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .page-wrapper {
-            min-height: calc(100vh - 50px);
-            display: flex;
-            justify-content: center;
-            padding: 36px 16px 42px;
+        body::before {
+            background:
+                radial-gradient(circle at 15% 20%, rgba(215,168,74,0.15) 0, transparent 2px),
+                radial-gradient(circle at 85% 18%, rgba(215,168,74,0.12) 0, transparent 2px),
+                radial-gradient(circle at 12% 72%, rgba(215,168,74,0.1) 0, transparent 2px),
+                radial-gradient(circle at 88% 62%, rgba(215,168,74,0.1) 0, transparent 2px);
+            background-size: 240px 240px;
+            opacity: .8;
         }
 
-        .content {
-            width: 100%;
-            max-width: 830px;
+        body::after {
+            background:
+                linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+                linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+            opacity: .55;
+        }
+
+        .page-shell {
+            position: relative;
+            z-index: 1;
+            max-width: 1120px;
             margin: 0 auto;
+            padding: 28px 18px 40px;
         }
 
-        .page-title {
-            font-size: 26px;
-            font-weight: 700;
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
             margin-bottom: 10px;
         }
 
-        .desc-box {
-            background: rgba(0, 0, 0, 0.35);
-            border-radius: 22px;
-            padding: 20px 20px 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        .lang-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn {
+            text-decoration: none;
+            color: #fff;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            transition: 0.25s ease;
+            opacity: 0.78;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+            border: 1px solid rgba(240,196,106,0.3);
+            opacity: 1;
+        }
+
+        .lang-btn:hover {
+            opacity: 1;
+        }
+
+        .brand {
+            text-align: center;
             margin-bottom: 18px;
         }
 
-        .desc-text {
-            font-size: 14px;
-            opacity: 0.95;
-            line-height: 1.5;
-            margin-bottom: 10px;
-        }
-
-        .desc-list {
-            margin: 0;
-            padding-left: 18px;
-            font-size: 13px;
-            line-height: 1.5;
-            opacity: 0.97;
-        }
-
-        .qr-info {
-            font-size: 13px;
-            margin-top: 10px;
-        }
-
-        .qr-info strong {
-            color: #4fd3ff;
-        }
-
-        .form-card-wrapper {
-            margin-top: 22px;
-        }
-
-        .form-card {
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 26px;
-            padding: 22px 18px 20px;
-            box-shadow: 0 14px 36px rgba(0,0,0,0.55);
-        }
-
-        .form-title {
-            font-size: 19px;
-            font-weight: 600;
-            margin: 0 0 14px;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-        }
-
-        .form-label {
-            font-size: 12px;
-            margin-bottom: 4px;
+        .brand img {
+            width: 150px;
+            max-width: 42vw;
             display: block;
-            opacity: 0.9;
+            margin: 0 auto 8px;
         }
 
-        .form-input {
-            width: 100%;
-            border-radius: 16px;
-            border: none;
-            padding: 11px 14px;
+        .brand-subtitle {
+            color: var(--gold-soft);
+            letter-spacing: 3px;
             font-size: 14px;
-            font-family: inherit;
-            outline: none;
-            background: rgba(255,255,255,0.98);
-            color: #111827;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+            text-transform: uppercase;
         }
 
-        .note-textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
-
-        .submit-btn {
+        .main-card {
             width: 100%;
-            border: none;
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, rgba(8,30,70,0.92), rgba(2,15,40,0.96));
+            border: 1.5px solid var(--border);
+            border-radius: 34px;
+            box-shadow:
+                0 20px 80px rgba(0,0,0,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            padding: 34px 34px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top center, rgba(255,255,255,0.05), transparent 40%);
+            pointer-events: none;
+        }
+
+        .hero-title {
+            text-align: center;
+            margin: 0 0 10px;
+            line-height: 1.08;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .hero-title .top {
+            display: block;
+            font-size: 58px;
+            font-weight: 700;
+            color: #f8f5ef;
+        }
+
+        .hero-title .bottom {
+            display: block;
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--gold-soft);
+        }
+
+        .hero-separator {
+            text-align: center;
+            color: var(--gold-soft);
+            font-size: 18px;
+            margin: 10px 0 14px;
+            letter-spacing: 3px;
+        }
+
+        .hero-desc {
+            max-width: 700px;
+            margin: 0 auto 26px;
+            text-align: center;
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-soft);
+        }
+
+        .qr-badge {
+            width: fit-content;
+            margin: 0 auto 22px;
+            padding: 10px 16px;
+            border: 1px solid rgba(240,196,106,0.28);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.03);
+            color: #f4d48c;
+            font-size: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .input-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-height: 84px;
+            padding: 0 18px;
             border-radius: 18px;
-            padding: 13px 16px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(3,17,42,0.95), rgba(1,11,29,0.98));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        .input-icon {
+            width: 48px;
+            min-width: 48px;
+            text-align: center;
+            font-size: 26px;
+            color: var(--gold-soft);
+        }
+
+        .input-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .input-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .input-label {
             font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            background: linear-gradient(135deg, #007bff, #1d9bff);
+            font-weight: 500;
+            color: #f7f7f7;
+        }
+
+        .optional-tag {
+            font-size: 12px;
+            color: var(--gold-soft);
+            border: 1px solid rgba(240,196,106,0.35);
+            border-radius: 999px;
+            padding: 5px 10px;
+            white-space: nowrap;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
             color: #fff;
-            transition: 0.25s ease;
+            font-family: inherit;
+            font-size: 17px;
+            padding: 0;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: rgba(255,255,255,0.5);
         }
 
-        .error-box {
-            background: rgba(220, 38, 38, 0.18);
-            border: 1px solid rgba(248, 113, 113, 0.45);
-            color: #ffe3e3;
-            border-radius: 16px;
-            padding: 12px 14px;
-            margin-bottom: 14px;
-            font-size: 14px;
-            line-height: 1.4;
+        .form-textarea {
+            min-height: 78px;
+            resize: vertical;
+            padding-top: 4px;
+        }
+
+        .password-toggle {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.65);
+            font-size: 22px;
+            cursor: pointer;
+            padding-left: 10px;
         }
 
         .hint {
             font-size: 12px;
-            opacity: 0.82;
-            margin-top: 4px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 6px;
         }
 
-        @media (max-width: 640px) {
-            .page-title {
+        .error-box {
+            background: rgba(220, 38, 38, 0.16);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #ffe5e5;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .submit-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 28px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            max-width: 620px;
+            border: none;
+            border-radius: 16px;
+            padding: 22px 24px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: .3px;
+            cursor: pointer;
+            color: #1d1a12;
+            background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.45);
+            transition: 0.25s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 16px 34px rgba(0,0,0,0.38),
+                inset 0 1px 0 rgba(255,255,255,0.45);
+        }
+
+        .submit-btn i {
+            margin: 0 10px;
+        }
+
+        .security-note {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.82);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .security-note i {
+            color: var(--gold-soft);
+            margin-right: 8px;
+        }
+
+        .features {
+            max-width: 900px;
+            margin: 24px auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 26px;
+            background: rgba(2,12,31,0.72);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature {
+            padding: 26px 24px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .feature:last-child {
+            border-right: none;
+        }
+
+        .feature-icon {
+            width: 58px;
+            height: 58px;
+            min-width: 58px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(240,196,106,0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-soft);
+            font-size: 25px;
+        }
+
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gold-soft);
+            margin-bottom: 6px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.82);
+            line-height: 1.6;
+        }
+
+        .footer-brand {
+            max-width: 900px;
+            margin: 26px auto 0;
+            text-align: center;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 6px;
+            font-size: 13px;
+        }
+
+        .footer-brand .mini-logo {
+            color: var(--gold-soft);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .page-shell {
+                padding: 16px 14px 28px;
+            }
+
+            .main-card {
+                padding: 24px 18px 22px;
+                border-radius: 24px;
+            }
+
+            .hero-title .top {
+                font-size: 42px;
+            }
+
+            .hero-title .bottom {
+                font-size: 46px;
+            }
+
+            .hero-desc {
+                font-size: 15px;
+            }
+
+            .input-card {
+                min-height: 78px;
+                padding: 0 14px;
+                gap: 12px;
+            }
+
+            .input-icon {
+                width: 40px;
+                min-width: 40px;
                 font-size: 22px;
             }
 
-            .form-card {
-                padding: 18px 14px 16px;
+            .form-input,
+            .form-textarea {
+                font-size: 15px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .feature {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .feature:last-child {
+                border-bottom: none;
+            }
+
+            .footer-brand {
+                letter-spacing: 3px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar {
+                justify-content: center;
+            }
+
+            .hero-title .top {
+                font-size: 34px;
+            }
+
+            .hero-title .bottom {
+                font-size: 38px;
+            }
+
+            .submit-btn {
+                font-size: 16px;
+                padding: 18px 18px;
+            }
+
+            .input-label-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
             }
         }
     </style>
 </head>
-
 <body>
 
-    <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" class="vista-logo">
+    <div class="page-shell">
 
-    <div class="page-wrapper">
-        <div class="content">
+        <div class="topbar">
+            <div class="lang-switch">
+                <a href="?lang=tr" class="lang-btn {{ 'active' if current_lang == 'tr' else '' }}">🇹🇷 TR</a>
+                <a href="?lang=en" class="lang-btn {{ 'active' if current_lang == 'en' else '' }}">🇬🇧 EN</a>
+            </div>
+        </div>
 
-            <div class="desc-box">
-                <div class="page-title">QR Kod Aktivasyonu</div>
+        <div class="brand">
+            <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" alt="Vista QR Logo">
+            <div class="brand-subtitle">{{ t[current_lang]['system_name'] }}</div>
+        </div>
 
-                <p class="desc-text">
-                    VistaQR ürünü kaybolduğunda bulan kişinin size ulaşabilmesini sağlar.
-                    Aşağıdaki formu doldurarak QR kodunuzu aktive edin.
-                </p>
+        <div class="main-card">
+            <h1 class="hero-title">
+                <span class="top">{{ t[current_lang]['title_top'] }}</span>
+                <span class="bottom">{{ t[current_lang]['title_bottom'] }}</span>
+            </h1>
 
-                <ul class="desc-list">
-                    <li>Bilgileriniz sadece iletişim için kullanılır.</li>
-                    <li>Telefon numaranıza tek tıkla arama yapılabilir.</li>
-                    <li>E-posta alanı isteğe bağlıdır.</li>
-                </ul>
+            <div class="hero-separator">◇</div>
 
-                <p class="qr-info">
-                    Aktive edilen QR:
-                    <strong>{{ qr_code_id }}</strong>
-                </p>
+            <p class="hero-desc">
+                {{ t[current_lang]['desc'] }}
+            </p>
+
+            <div class="qr-badge">
+                {{ t[current_lang]['qr_info'] }}: <strong>{{ qr_code_id }}</strong>
             </div>
 
-            <div class="form-card-wrapper">
-                <div class="form-card">
+            {% if error %}
+            <div class="error-box">
+                {{ error }}
+            </div>
+            {% endif %}
 
-                    <h2 class="form-title">Sahip Bilgilerini Girin</h2>
+            <form method="POST" class="form-grid">
 
-                    {% if error %}
-                    <div class="error-box">
-                        {{ error }}
+                <div class="input-card">
+                    <div class="input-icon"><i class="fa-regular fa-user"></i></div>
+                    <div class="input-body">
+                        <div class="input-label">{{ t[current_lang]['owner_name'] }}</div>
+                        <input type="text" name="owner_name" class="form-input" required placeholder="{{ t[current_lang]['owner_name_ph'] }}">
                     </div>
-                    {% endif %}
+                </div>
 
-                    <form method="POST">
+                <div class="input-card">
+                    <div class="input-icon"><i class="fa-solid fa-phone"></i></div>
+                    <div class="input-body">
+                        <div class="input-label">{{ t[current_lang]['phone'] }}</div>
+                        <input type="tel" name="phone" class="form-input" required placeholder="{{ t[current_lang]['phone_ph'] }}">
+                    </div>
+                </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="owner_name">Ad Soyad</label>
-                            <input type="text" name="owner_name" class="form-input" required placeholder="Ad Soyad">
+                <div class="input-card">
+                    <div class="input-icon"><i class="fa-regular fa-envelope"></i></div>
+                    <div class="input-body">
+                        <div class="input-label-row">
+                            <div class="input-label">{{ t[current_lang]['email'] }}</div>
+                            <div class="optional-tag">{{ t[current_lang]['optional'] }}</div>
                         </div>
+                        <input type="email" name="email" class="form-input" placeholder="{{ t[current_lang]['email_ph'] }}">
+                    </div>
+                </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="email">E-posta</label>
-                            <input type="email" name="email" class="form-input" placeholder="E-posta (isteğe bağlı)">
-                            <div class="hint">İsterseniz boş bırakabilirsiniz.</div>
+                <div class="input-card">
+                    <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                    <div class="input-body">
+                        <div class="input-label">{{ t[current_lang]['password'] }}</div>
+                        <div class="field-wrap" style="display:flex; align-items:center;">
+                            <input type="password" name="password" id="password" class="form-input" required placeholder="{{ t[current_lang]['password_ph'] }}">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
                         </div>
+                        <div class="hint">{{ t[current_lang]['min_char'] }}</div>
+                    </div>
+                </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="phone">Telefon</label>
-                            <input type="tel" name="phone" class="form-input" required placeholder="Telefon">
+                <div class="input-card">
+                    <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                    <div class="input-body">
+                        <div class="input-label">{{ t[current_lang]['password_confirm'] }}</div>
+                        <div class="field-wrap" style="display:flex; align-items:center;">
+                            <input type="password" name="password_confirm" id="password_confirm" class="form-input" required placeholder="{{ t[current_lang]['password_confirm_ph'] }}">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirm', this)">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="password">Şifre Oluştur</label>
-                            <input type="password" name="password" class="form-input" required placeholder="Şifre">
-                            <div class="hint">En az 6 karakter olmalıdır.</div>
+                <div class="input-card" style="align-items:flex-start; padding-top:18px; padding-bottom:18px;">
+                    <div class="input-icon" style="padding-top:8px;"><i class="fa-regular fa-note-sticky"></i></div>
+                    <div class="input-body">
+                        <div class="input-label-row">
+                            <div class="input-label">{{ t[current_lang]['note'] }}</div>
+                            <div class="optional-tag">{{ t[current_lang]['optional'] }}</div>
                         </div>
+                        <textarea name="note" class="form-textarea" placeholder="{{ t[current_lang]['note_ph'] }}"></textarea>
+                    </div>
+                </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="password_confirm">Şifre Tekrar</label>
-                            <input type="password" name="password_confirm" class="form-input" required placeholder="Şifre Tekrar">
-                        </div>
+                <div class="submit-wrap">
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        {{ t[current_lang]['activate'] }}
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
 
-                        <div class="form-group">
-                            <label class="form-label" for="note">Not (isteğe bağlı)</label>
-                            <textarea name="note" class="form-input note-textarea" placeholder="Lütfen benimle iletişime geçiniz."></textarea>
-                        </div>
+            <div class="security-note">
+                <div><i class="fa-regular fa-shield"></i>{{ t[current_lang]['secure_info_1'] }}</div>
+                <div>{{ t[current_lang]['secure_info_2'] }}</div>
+            </div>
+        </div>
 
-                        <button type="submit" class="submit-btn">QR Kodumu Aktive Et</button>
-
-                    </form>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-regular fa-shield"></i></div>
+                <div>
+                    <div class="feature-title">{{ t[current_lang]['feature_1_title'] }}</div>
+                    <div class="feature-desc">{{ t[current_lang]['feature_1_desc'] }}</div>
                 </div>
             </div>
 
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                    <div class="feature-title">{{ t[current_lang]['feature_2_title'] }}</div>
+                    <div class="feature-desc">{{ t[current_lang]['feature_2_desc'] }}</div>
+                </div>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon"><i class="fa-regular fa-gem"></i></div>
+                <div>
+                    <div class="feature-title">{{ t[current_lang]['feature_3_title'] }}</div>
+                    <div class="feature-desc">{{ t[current_lang]['feature_3_desc'] }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-brand">
+            <div class="mini-logo"><i class="fa-solid fa-v"></i></div>
+            <div>VISTA QR {{ t[current_lang]['system_name'] }}</div>
+            <div style="margin-top:10px; color: var(--gold-soft);">{{ t[current_lang]['footer'] }}</div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    </script>
 
 </body>
 </html>
