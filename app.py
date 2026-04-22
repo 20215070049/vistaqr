@@ -36,6 +36,7 @@ ADMIN_LOGOUT_ROUTE = "/vista-secret-panel-6334/logout"
 ADMIN_DELETE_INACTIVE_ROUTE = "/vista-secret-panel-6334/delete-inactive"
 ADMIN_DELETE_USER_ROUTE = "/vista-secret-panel-6334/delete-user/<int:user_id>"
 ADMIN_CHANGE_CREDENTIALS_ROUTE = "/vista-secret-panel-6334/change-credentials"
+ADMIN_RELEASE_KEYCHAIN_ROUTE = "/vista-secret-panel-6334/release-keychain/<int:keychain_id>"
 
 # ------------------- EMAIL / OTP AYARLARI -------------------
 ENABLE_EMAIL_VERIFICATION = False
@@ -183,6 +184,10 @@ def generate_unique_qr_code():
 
 
 def get_lang():
+    lang = request.args.get("lang")
+    if lang in ["tr", "en"]:
+        session["lang"] = lang
+        return lang
     return session.get("lang", "tr")
 
 
@@ -636,6 +641,30 @@ def delete_user(user_id):
         print("KULLANICI SILME HATASI =>", repr(e))
 
     return redirect(url_for("admin_users"))
+
+
+# ------------------- ADMIN: QR BAĞINI KALDIR / YENİDEN AKTİVE EDİLEBİLİR YAP -------------------
+@app.route(ADMIN_RELEASE_KEYCHAIN_ROUTE, methods=["POST"])
+@require_admin
+def release_keychain(keychain_id):
+    keychain = db.session.get(Keychain, keychain_id)
+
+    if not keychain:
+        return redirect(url_for("admin_users"))
+
+    if not keychain.owner_id:
+        return redirect(url_for("admin_users"))
+
+    try:
+        keychain.owner_id = None
+        keychain.status = "inactive"
+        keychain.note = None
+        db.session.commit()
+        return redirect(url_for("admin_users"))
+    except Exception as e:
+        db.session.rollback()
+        print("QR BAGLANTISI KALDIRMA HATASI =>", repr(e))
+        return redirect(url_for("admin_users"))
 
 
 # ------------------- ŞİFREMİ UNUTTUM -------------------
