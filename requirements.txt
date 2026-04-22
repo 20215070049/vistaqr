@@ -6,3 +6,4 @@ email-validator
 psycopg2-binary
 Pillow
 requests
+gunicorn
