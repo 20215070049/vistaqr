@@ -1,178 +1,353 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if lang == 'tr' %}Kullanıcı Paneli | VistaQR{% else %}User Panel | VistaQR{% endif %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #002d63, #0059b3);
-      color: #fff;
-      text-align: center;
-      overflow-x: hidden;
-    }
-
-    .lang-switch {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      color: white;
-      font-weight: 600;
-    }
-
-    .lang-switch a {
-      color: white;
-      text-decoration: none;
-      margin: 0 4px;
-      transition: 0.3s;
-    }
-
-    .lang-switch a:hover {
-      text-decoration: underline;
-    }
-
-    h1 {
-      font-size: 40px;
-      color: #00aaff;
-      margin-top: 100px;
-      margin-bottom: 10px;
-    }
-
-    p.subtitle {
-      font-size: 18px;
-      color: #e0e0e0;
-      margin-bottom: 30px;
-    }
-
-    .message-box {
-      width: 380px;
-      max-width: calc(100% - 40px);
-      margin: 0 auto 16px auto;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 500;
+    * {
       box-sizing: border-box;
     }
 
+    :root {
+      --gold: #d7a84a;
+      --gold-soft: #f0c46a;
+      --navy: #010916;
+      --navy-2: #02193d;
+      --text-soft: rgba(255,255,255,0.78);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+        linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background:
+        radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+        radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+        radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+        radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+      background-size: 240px 240px;
+      opacity: .8;
+    }
+
+    body::after {
+      background:
+        linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+        linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+      opacity: .55;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 24px 18px 34px;
+    }
+
+    .topbar {
+      max-width: 1120px;
+      margin: 0 auto 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .home-link {
+      color: #fff3c4;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid rgba(240,196,106,0.25);
+      background: rgba(255,255,255,0.05);
+      padding: 10px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 6px;
+      backdrop-filter: blur(10px);
+    }
+
+    .lang-switch a {
+      text-decoration: none;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 999px;
+      opacity: 0.78;
+      transition: 0.25s ease;
+    }
+
+    .lang-switch a.active {
+      opacity: 1;
+      color: #fff3c4;
+      background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+      border: 1px solid rgba(240,196,106,0.3);
+    }
+
+    .hero {
+      max-width: 960px;
+      margin: 0 auto 24px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 142px;
+      max-width: 46vw;
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    .system-name {
+      color: var(--gold-soft);
+      letter-spacing: 3px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: #f8f5ef;
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      max-width: 640px;
+      margin: 14px auto 0;
+      color: var(--text-soft);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .message-box {
+      max-width: 760px;
+      margin: 0 auto 14px;
+      border-radius: 16px;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
     .message-success {
-      background: rgba(34, 197, 94, 0.18);
-      border: 1px solid rgba(34, 197, 94, 0.45);
+      background: rgba(34, 197, 94, 0.16);
+      border: 1px solid rgba(34, 197, 94, 0.38);
       color: #dcfce7;
     }
 
     .message-error {
-      background: rgba(239, 68, 68, 0.18);
-      border: 1px solid rgba(239, 68, 68, 0.45);
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.38);
       color: #fee2e2;
     }
 
-    form.profile-form {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 30px;
-      width: 350px;
-      max-width: calc(100% - 40px);
+    .content-grid {
+      max-width: 1120px;
       margin: 0 auto;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(10px);
-      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel-card {
+      background: linear-gradient(180deg, rgba(8,30,70,0.86), rgba(2,15,40,0.94));
+      border: 1.5px solid rgba(215,168,74,0.36);
+      border-radius: 28px;
+      box-shadow:
+        0 22px 70px rgba(0,0,0,0.36),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      padding: 24px;
+    }
+
+    .panel-card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .panel-card .desc {
+      margin: 0 0 20px;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .input-card {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-height: 62px;
+      padding: 0 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(3,17,42,0.95), rgba(1,11,29,0.98));
+      margin-bottom: 13px;
+    }
+
+    .input-icon {
+      width: 30px;
+      min-width: 30px;
+      color: var(--gold-soft);
+      font-size: 18px;
+      text-align: center;
     }
 
     input, textarea {
       width: 100%;
-      padding: 12px;
-      margin: 10px 0;
       border: none;
-      border-radius: 10px;
-      font-size: 14px;
       outline: none;
-      box-sizing: border-box;
+      background: transparent;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(255,255,255,0.52);
     }
 
     textarea {
-      resize: none;
-      height: 100px;
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .main-button,
+    .note-save-button,
+    .toggle-button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      transition: 0.25s ease;
     }
 
     .main-button {
       width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background-color: #00aaff;
-      color: white;
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-top: 8px;
+      color: #1d1a12;
+      background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,0.30),
+        inset 0 1px 0 rgba(255,255,255,0.45);
       font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 10px;
     }
 
-    .main-button:hover {
-      background-color: #0090dd;
-      transform: translateY(-3px);
-    }
-
-    .section-title {
-      margin-top: 40px;
-      font-size: 28px;
-      color: #ffffff;
+    .main-button:hover,
+    .note-save-button:hover,
+    .toggle-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
     }
 
     .qr-list {
-      width: 900px;
-      max-width: calc(100% - 40px);
-      margin: 20px auto 0 auto;
-      display: flex;
-      flex-direction: column;
+      display: grid;
       gap: 16px;
     }
 
     .qr-card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(3,17,42,0.84), rgba(1,11,29,0.92));
       padding: 18px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(10px);
-      text-align: left;
     }
 
     .qr-card-top {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 16px;
-      flex-wrap: wrap;
     }
 
     .qr-info {
+      min-width: 0;
       flex: 1;
-      min-width: 220px;
+    }
+
+    .qr-code-label {
+      color: var(--gold-soft);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
     }
 
     .qr-code-text {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 700;
       color: #ffffff;
-      margin-bottom: 8px;
       word-break: break-word;
+      margin-bottom: 9px;
     }
 
     .qr-meta {
-      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
       color: #dbeafe;
-      margin-bottom: 6px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.10);
     }
 
-    .qr-note {
-      font-size: 14px;
-      color: #e5e7eb;
-      margin-top: 8px;
-      line-height: 1.5;
-      word-break: break-word;
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .status-active {
+      background: #22c55e;
+    }
+
+    .status-inactive {
+      background: #ef4444;
     }
 
     .toggle-form,
@@ -180,85 +355,91 @@
       margin: 0;
     }
 
-    .note-form {
-      margin-top: 14px;
+    .toggle-button {
+      min-width: 145px;
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: white;
+      font-size: 14px;
     }
 
-    .note-form textarea {
-      margin: 0 0 10px 0;
-      min-height: 88px;
+    .note-form {
+      margin-top: 15px;
+    }
+
+    .note-area {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 10px;
     }
 
     .note-save-button {
       width: auto;
-      min-width: 140px;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 10px;
-      background: #2563eb;
-      color: white;
+      min-width: 145px;
+      border-radius: 13px;
+      padding: 11px 15px;
+      background: rgba(240,196,106,0.16);
+      border: 1px solid rgba(240,196,106,0.34);
+      color: #fff3c4;
       font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .toggle-button {
-      min-width: 150px;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-button:hover,
-    .note-save-button:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.05);
     }
 
     .empty-box {
-      width: 700px;
-      max-width: calc(100% - 40px);
-      margin: 20px auto 0 auto;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
       border-radius: 18px;
-      padding: 20px;
+      padding: 18px;
       color: #dbeafe;
-      box-sizing: border-box;
-    }
-
-    a.back {
-      display: block;
-      margin-top: 28px;
-      color: #a3c8ff;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    a.back:hover {
-      text-decoration: underline;
+      line-height: 1.6;
     }
 
     footer {
-      margin-top: 50px;
-      margin-bottom: 30px;
-      font-size: 14px;
-      color: #a3c8ff;
+      margin-top: 32px;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.68);
     }
 
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 30px;
-        margin-top: 90px;
+    @media (max-width: 900px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 16px 14px 28px;
       }
 
-      p.subtitle {
-        font-size: 16px;
-        padding: 0 18px;
+      .topbar {
+        flex-direction: column-reverse;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .home-link {
+        width: 100%;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+
+      .panel-card {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .panel-card h2 {
+        font-size: 22px;
       }
 
       .qr-card-top {
@@ -266,145 +447,208 @@
         align-items: stretch;
       }
 
-      .toggle-button {
+      .toggle-button,
+      .note-save-button {
         width: 100%;
       }
 
-      .lang-switch {
-        top: 14px;
-        right: 18px;
+      .logo {
+        width: 128px;
+      }
+
+      .system-name {
+        letter-spacing: 2px;
       }
     }
   </style>
 </head>
+
 <body>
+  <div class="page">
 
-  <div class="lang-switch">
-    <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
-    <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
-  </div>
+    <div class="topbar">
+      <a href="{{ url_for('home') }}" class="home-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        {% if lang == 'tr' %}Ana Sayfa{% else %}Home{% endif %}
+      </a>
 
-  <h1>{% if lang == 'tr' %}Kullanıcı Paneli{% else %}User Panel{% endif %}</h1>
-  <p class="subtitle">
-    {% if lang == 'tr' %}
-      Bilgilerinizi güncelleyebilir ve QR durumlarınızı yönetebilirsiniz
-    {% else %}
-      You can update your information and manage your QR statuses
+      <div class="lang-switch">
+        <a href="{{ url_for('set_language', lang_code='tr') }}" class="{% if lang == 'tr' %}active{% endif %}">TR</a>
+        <a href="{{ url_for('set_language', lang_code='en') }}" class="{% if lang == 'en' %}active{% endif %}">EN</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" alt="Vista QR Logo" class="logo">
+
+      <div class="system-name">
+        {% if lang == 'en' %}
+          QR KEYCHAIN SYSTEM
+        {% else %}
+          QR ANAHTARLIK SİSTEMİ
+        {% endif %}
+      </div>
+
+      <h1>{% if lang == 'tr' %}Kullanıcı Paneli{% else %}User Panel{% endif %}</h1>
+
+      <p class="subtitle">
+        {% if lang == 'tr' %}
+          Bilgilerinizi güncelleyebilir, bağlı QR anahtarlıklarınızı ve görünürlük durumlarını yönetebilirsiniz.
+        {% else %}
+          Update your information and manage the visibility status of your linked QR keychains.
+        {% endif %}
+      </p>
+    </section>
+
+    {% if success %}
+      <div class="message-box message-success">{{ success }}</div>
     {% endif %}
-  </p>
 
-  {% if success %}
-    <div class="message-box message-success">{{ success }}</div>
-  {% endif %}
+    {% if error %}
+      <div class="message-box message-error">{{ error }}</div>
+    {% endif %}
 
-  {% if error %}
-    <div class="message-box message-error">{{ error }}</div>
-  {% endif %}
+    <main class="content-grid">
+      <section class="panel-card">
+        <h2>{% if lang == 'tr' %}Profil Bilgileri{% else %}Profile Information{% endif %}</h2>
+        <p class="desc">
+          {% if lang == 'tr' %}
+            Bulan kişinin size ulaşabilmesi için iletişim bilgilerinizi güncel tutun.
+          {% else %}
+            Keep your contact information up to date so the finder can reach you.
+          {% endif %}
+        </p>
 
-  <form method="POST" class="profile-form">
-    <input
-      type="text"
-      name="name"
-      value="{{ user.name }}"
-      placeholder="{% if lang == 'tr' %}Ad Soyad{% else %}Full Name{% endif %}"
-    >
-
-    <input
-      type="text"
-      name="phone"
-      value="{{ user.phone or '' }}"
-      placeholder="{% if lang == 'tr' %}Telefon Numarası{% else %}Phone Number{% endif %}"
-    >
-
-    <input
-      type="email"
-      name="email"
-      value="{% if user.email and not user.email.endswith('@vistaqr.local') %}{{ user.email }}{% endif %}"
-      placeholder="{% if lang == 'tr' %}E-posta (isteğe bağlı){% else %}Email (optional){% endif %}"
-    >
-
-    <input
-      type="password"
-      name="password"
-      placeholder="{% if lang == 'tr' %}Yeni Şifre (isteğe bağlı){% else %}New Password (optional){% endif %}"
-    >
-
-    <button type="submit" class="main-button">
-      {% if lang == 'tr' %}Bilgileri Güncelle{% else %}Update Information{% endif %}
-    </button>
-  </form>
-
-  <h2 class="section-title">{% if lang == 'tr' %}QR'larım{% else %}My QRs{% endif %}</h2>
-
-  {% if keychains and keychains|length > 0 %}
-    <div class="qr-list">
-      {% for qr in keychains %}
-        <div class="qr-card">
-          <div class="qr-card-top">
-            <div class="qr-info">
-              <div class="qr-code-text">{{ qr.qr_code_id }}</div>
-
-              <div class="qr-meta">
-                {% if lang == 'tr' %}
-                  Durum: {{ qr.label_tr }}
-                {% else %}
-                  Status: {{ qr.label_en }}
-                {% endif %}
-              </div>
-
-              {% if qr.note %}
-                <div class="qr-note">
-                  <strong>{% if lang == 'tr' %}Not:{% else %}Note:{% endif %}</strong>
-                  {{ qr.note }}
-                </div>
-              {% endif %}
-            </div>
-
-            <form method="POST" action="{{ url_for('toggle_keychain_status', keychain_id=qr.id) }}" class="toggle-form">
-              <button
-                type="submit"
-                class="toggle-button"
-                style="background: {{ qr.button_color }};"
-              >
-                {% if lang == 'tr' %}
-                  {{ qr.button_text_tr }}
-                {% else %}
-                  {{ qr.button_text_en }}
-                {% endif %}
-              </button>
-            </form>
+        <form method="POST" class="profile-form">
+          <div class="input-card">
+            <div class="input-icon"><i class="fa-regular fa-user"></i></div>
+            <input
+              type="text"
+              name="name"
+              value="{{ user.name }}"
+              placeholder="{% if lang == 'tr' %}Ad Soyad{% else %}Full Name{% endif %}"
+            >
           </div>
 
-          <form method="POST" action="{{ url_for('update_keychain_note', keychain_id=qr.id) }}" class="note-form">
-            <textarea
-              name="note"
-              placeholder="{% if lang == 'tr' %}Bu QR için not girin veya güncelleyin{% else %}Enter or update note for this QR{% endif %}"
-            >{{ qr.note or '' }}</textarea>
+          <div class="input-card">
+            <div class="input-icon"><i class="fa-solid fa-phone"></i></div>
+            <input
+              type="text"
+              name="phone"
+              value="{{ user.phone or '' }}"
+              placeholder="{% if lang == 'tr' %}Telefon Numarası{% else %}Phone Number{% endif %}"
+            >
+          </div>
 
-            <button type="submit" class="note-save-button">
-              {% if lang == 'tr' %}Notu Güncelle{% else %}Update Note{% endif %}
-            </button>
-          </form>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="empty-box">
-      {% if lang == 'tr' %}
-        Henüz hesabınıza bağlı bir QR bulunmuyor.
-      {% else %}
-        There is no QR linked to your account yet.
-      {% endif %}
-    </div>
-  {% endif %}
+          <div class="input-card">
+            <div class="input-icon"><i class="fa-regular fa-envelope"></i></div>
+            <input
+              type="email"
+              name="email"
+              value="{% if user.email and not user.email.endswith('@vistaqr.local') %}{{ user.email }}{% endif %}"
+              placeholder="{% if lang == 'tr' %}E-posta (isteğe bağlı){% else %}Email Address (optional){% endif %}"
+            >
+          </div>
 
-  <a href="/" class="back">
-    {% if lang == 'tr' %}Ana Sayfaya Dön{% else %}Back to Home{% endif %}
-  </a>
+          <div class="input-card">
+            <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+            <input
+              type="password"
+              name="password"
+              placeholder="{% if lang == 'tr' %}Yeni Şifre (isteğe bağlı){% else %}New Password (optional){% endif %}"
+            >
+          </div>
 
-  <footer>
-    © 2025 VistaQR — {% if lang == 'tr' %}Tüm Hakları Saklıdır{% else %}All Rights Reserved{% endif %}
-  </footer>
+          <button type="submit" class="main-button">
+            <i class="fa-solid fa-floppy-disk"></i>
+            {% if lang == 'tr' %}Bilgileri Güncelle{% else %}Update Information{% endif %}
+          </button>
+        </form>
+      </section>
 
+      <section class="panel-card">
+        <h2>{% if lang == 'tr' %}QR Anahtarlıklarım{% else %}My QR Keychains{% endif %}</h2>
+        <p class="desc">
+          {% if lang == 'tr' %}
+            QR kimliğinizi buradan görebilir, notunuzu güncelleyebilir veya QR görünürlüğünü aktif/pasif yapabilirsiniz.
+          {% else %}
+            View your QR ID, update your note, or enable/disable your QR visibility.
+          {% endif %}
+        </p>
+
+        {% if keychains and keychains|length > 0 %}
+          <div class="qr-list">
+            {% for qr in keychains %}
+              <div class="qr-card">
+                <div class="qr-card-top">
+                  <div class="qr-info">
+                    <div class="qr-code-label">
+                      {% if lang == 'tr' %}QR Kimliği{% else %}QR ID{% endif %}
+                    </div>
+
+                    <div class="qr-code-text">
+                      <i class="fa-solid fa-qrcode" style="color: var(--gold-soft); margin-right: 6px;"></i>
+                      {{ qr.qr_code_id }}
+                    </div>
+
+                    <div class="qr-meta">
+                      <span class="status-dot {% if qr.status == 'active' %}status-active{% else %}status-inactive{% endif %}"></span>
+                      {% if lang == 'tr' %}
+                        Durum: {{ qr.label_tr }}
+                      {% else %}
+                        Status: {{ qr.label_en }}
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <form method="POST" action="{{ url_for('toggle_keychain_status', keychain_id=qr.id) }}" class="toggle-form">
+                    <button
+                      type="submit"
+                      class="toggle-button"
+                      style="background: {{ qr.button_color }};"
+                    >
+                      {% if lang == 'tr' %}
+                        {{ qr.button_text_tr }}
+                      {% else %}
+                        {{ qr.button_text_en }}
+                      {% endif %}
+                    </button>
+                  </form>
+                </div>
+
+                <form method="POST" action="{{ url_for('update_keychain_note', keychain_id=qr.id) }}" class="note-form">
+                  <div class="note-area">
+                    <textarea
+                      name="note"
+                      placeholder="{% if lang == 'tr' %}Bu QR için not girin veya güncelleyin{% else %}Enter or update a note for this QR{% endif %}"
+                    >{{ qr.note or '' }}</textarea>
+                  </div>
+
+                  <button type="submit" class="note-save-button">
+                    <i class="fa-regular fa-note-sticky"></i>
+                    {% if lang == 'tr' %}Notu Güncelle{% else %}Update Note{% endif %}
+                  </button>
+                </form>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-box">
+            {% if lang == 'tr' %}
+              Henüz hesabınıza bağlı bir QR bulunmuyor.
+            {% else %}
+              There is no QR linked to your account yet.
+            {% endif %}
+          </div>
+        {% endif %}
+      </section>
+    </main>
+
+    <footer>
+      © 2025 VistaQR —
+      {% if lang == 'tr' %}Tüm hakları saklıdır.{% else %}All rights reserved.{% endif %}
+    </footer>
+
+  </div>
 </body>
 </html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('tr') }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if lang == 'en' %}How It Works | VistaQR{% else %}Ne İşe Yarar | VistaQR{% endif %}</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(240,196,106,.18), transparent 18%),
+        radial-gradient(circle at top right, rgba(40,120,255,.16), transparent 22%),
+        linear-gradient(135deg, #010916 0%, #02193d 50%, #03112a 100%);
+      overflow-x: hidden;
+    }
+
+    .page {
+      padding: 24px 18px 42px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 26px;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 135px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      color: rgba(255,255,255,.82);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .nav a.active {
+      color: #fff3c4;
+      border-color: rgba(240,196,106,.35);
+      background: rgba(240,196,106,.12);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 34px 24px;
+      border-radius: 34px;
+      background: linear-gradient(180deg, rgba(8,30,70,.82), rgba(2,15,40,.94));
+      border: 1.5px solid rgba(215,168,74,.38);
+      box-shadow: 0 22px 80px rgba(0,0,0,.38);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 56px;
+      line-height: 1.08;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 span { color: #f0c46a; }
+
+    .hero p {
+      max-width: 760px;
+      margin: 0 auto;
+      color: rgba(255,255,255,.78);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .animation-stage {
+      margin: 34px auto 0;
+      max-width: 860px;
+      min-height: 260px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at center, rgba(40,120,255,.18), transparent 45%),
+        rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.10);
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+    }
+
+    .path-line {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      top: 50%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(240,196,106,.7), transparent);
+      opacity: .65;
+    }
+
+    .item {
+      position: absolute;
+      left: 10%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      background: rgba(240,196,106,.12);
+      border: 1px solid rgba(240,196,106,.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f0c46a;
+      font-size: 34px;
+      animation: itemMove 8s ease-in-out infinite;
+      box-shadow: 0 0 28px rgba(240,196,106,.20);
+    }
+
+    .scanner {
+      position: absolute;
+      left: 38%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 86px;
+      height: 130px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #071a3c, #020b1d);
+      border: 2px solid rgba(255,255,255,.18);
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      animation: phonePulse 8s ease-in-out infinite;
+    }
+
+    .scanner::before {
+      content: "";
+      position: absolute;
+      top: 22px;
+      left: 18px;
+      width: 50px;
+      height: 50px;
+      background:
+        linear-gradient(90deg, #fff 4px, transparent 4px) 0 0 / 12px 12px,
+        linear-gradient(#fff 4px, transparent 4px) 0 0 / 12px 12px;
+      opacity: .9;
+      border-radius: 6px;
+    }
+
+    .scan-beam {
+      position: absolute;
+      left: -70px;
+      top: 48px;
+      width: 210px;
+      height: 3px;
+      background: #38bdf8;
+      box-shadow: 0 0 18px #38bdf8;
+      animation: scanBeam 8s ease-in-out infinite;
+    }
+
+    .contact-card {
+      position: absolute;
+      right: 9%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 210px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(2,10,25,.92);
+      border: 1px solid rgba(34,197,94,.35);
+      box-shadow: 0 0 34px rgba(34,197,94,.16);
+      opacity: 0;
+      animation: contactShow 8s ease-in-out infinite;
+      text-align: left;
+    }
+
+    .contact-card .ok {
+      color: #86efac;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .contact-card .small {
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .whatsapp {
+      margin-top: 12px;
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: #fff;
+      background: #22c55e;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @keyframes itemMove {
+      0%, 18% { left: 10%; opacity: 1; }
+      34%, 52% { left: 28%; opacity: 1; }
+      70%, 100% { left: 82%; opacity: .18; }
+    }
+
+    @keyframes phonePulse {
+      0%, 25% { box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+      38%, 58% { box-shadow: 0 0 35px rgba(56,189,248,.55); }
+      75%, 100% { box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+    }
+
+    @keyframes scanBeam {
+      0%, 30% { opacity: 0; transform: translateY(-22px); }
+      38%, 55% { opacity: 1; transform: translateY(30px); }
+      65%, 100% { opacity: 0; transform: translateY(30px); }
+    }
+
+    @keyframes contactShow {
+      0%, 55% { opacity: 0; transform: translateY(-50%) translateX(20px); }
+      68%, 92% { opacity: 1; transform: translateY(-50%) translateX(0); }
+      100% { opacity: 0; transform: translateY(-50%) translateX(20px); }
+    }
+
+    .steps {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .step {
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.10);
+      text-align: center;
+    }
+
+    .step i {
+      color: #f0c46a;
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .step h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #fff3c4;
+    }
+
+    .step p {
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .showroom {
+      margin-top: 28px;
+      padding: 28px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(240,196,106,.20);
+      text-align: center;
+    }
+
+    .showroom h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    .showroom h2 span { color: #f0c46a; }
+
+    .showroom-desc {
+      color: rgba(255,255,255,.72);
+      max-width: 720px;
+      margin: 0 auto 22px;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .product {
+      padding: 22px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(8,30,70,.78), rgba(2,15,40,.94));
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .product-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 13px;
+      border-radius: 22px;
+      background: rgba(240,196,106,.12);
+      border: 1px solid rgba(240,196,106,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f0c46a;
+      font-size: 32px;
+    }
+
+    .product h3 {
+      color: #fff3c4;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .product p {
+      color: rgba(255,255,255,.70);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 26px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .btn-gold {
+      color: #1d1a12;
+      background: linear-gradient(180deg, #f0c46a, #c98f2f);
+    }
+
+    .btn-dark {
+      color: #fff3c4;
+      border: 1px solid rgba(240,196,106,.30);
+      background: rgba(255,255,255,.06);
+    }
+
+    @media(max-width: 900px) {
+      .steps,
+      .products {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero h1 {
+        font-size: 42px;
+      }
+    }
+
+    @media(max-width: 620px) {
+      .page {
+        padding: 16px 12px 32px;
+      }
+
+      .topbar {
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: center;
+      }
+
+      .hero {
+        padding: 26px 16px;
+        border-radius: 26px;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+      }
+
+      .hero p {
+        font-size: 14px;
+      }
+
+      .animation-stage {
+        min-height: 430px;
+      }
+
+      .path-line {
+        top: 14%;
+        bottom: 14%;
+        left: 50%;
+        width: 2px;
+        height: auto;
+        right: auto;
+        background: linear-gradient(180deg, transparent, rgba(240,196,106,.7), transparent);
+      }
+
+      .item {
+        left: 50%;
+        top: 12%;
+        transform: translateX(-50%);
+        animation: itemMoveMobile 8s ease-in-out infinite;
+      }
+
+      .scanner {
+        left: 50%;
+        top: 43%;
+        transform: translate(-50%, -50%);
+      }
+
+      .contact-card {
+        left: 50%;
+        right: auto;
+        top: 78%;
+        width: 230px;
+        transform: translate(-50%, -50%);
+        animation: contactShowMobile 8s ease-in-out infinite;
+      }
+
+      @keyframes itemMoveMobile {
+        0%, 18% { top: 12%; opacity: 1; }
+        34%, 52% { top: 31%; opacity: 1; }
+        70%, 100% { top: 88%; opacity: .18; }
+      }
+
+      @keyframes contactShowMobile {
+        0%, 55% { opacity: 0; transform: translate(-50%, -40%); }
+        68%, 92% { opacity: 1; transform: translate(-50%, -50%); }
+        100% { opacity: 0; transform: translate(-50%, -40%); }
+      }
+
+      .steps,
+      .products {
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="topbar">
+      <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" class="logo" alt="VistaQR">
+
+      <div class="nav">
+        <a href="{{ url_for('home') }}">{% if lang == 'en' %}Home{% else %}Ana Sayfa{% endif %}</a>
+        <a href="{{ url_for('about') }}">{% if lang == 'en' %}About{% else %}Hakkımızda{% endif %}</a>
+        <a href="{{ url_for('how_it_works') }}" class="active">{% if lang == 'en' %}How It Works{% else %}Ne İşe Yarar?{% endif %}</a>
+        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a>
+        <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1>
+        {% if lang == 'en' %}
+          How <span>VistaQR</span> Works
+        {% else %}
+          VistaQR <span>Ne İşe Yarar?</span>
+        {% endif %}
+      </h1>
+
+      <p>
+        {% if lang == 'en' %}
+          VistaQR helps lost belongings return to their owners. The finder scans the QR code, sees your contact page, and can reach you quickly.
+        {% else %}
+          VistaQR, kaybolan eşyaların sahibine geri dönmesini kolaylaştırır. Bulan kişi QR kodu okutur, iletişim sayfanızı görür ve size hızlıca ulaşabilir.
+        {% endif %}
+      </p>
+
+      <div class="animation-stage">
+        <div class="path-line"></div>
+
+        <div class="item">
+          <i class="fa-solid fa-key"></i>
+        </div>
+
+        <div class="scanner">
+          <div class="scan-beam"></div>
+        </div>
+
+        <div class="contact-card">
+          <div class="ok">
+            <i class="fa-solid fa-circle-check"></i>
+            {% if lang == 'en' %}Owner Found{% else %}Sahip Bulundu{% endif %}
+          </div>
+          <div class="small">
+            {% if lang == 'en' %}
+              The finder can contact the owner by phone or WhatsApp.
+            {% else %}
+              Bulan kişi telefon veya WhatsApp ile sahibine ulaşabilir.
+            {% endif %}
+          </div>
+          <div class="whatsapp">
+            <i class="fa-brands fa-whatsapp"></i>
+            WhatsApp
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="steps">
+      <div class="step">
+        <i class="fa-solid fa-box-open"></i>
+        <h3>{% if lang == 'en' %}Get Your Product{% else %}Ürünü Al{% endif %}</h3>
+        <p>{% if lang == 'en' %}Use a VistaQR keychain, tag, card or label.{% else %}VistaQR anahtarlık, etiket, kart veya sticker ürününü kullanın.{% endif %}</p>
+      </div>
+
+      <div class="step">
+        <i class="fa-solid fa-qrcode"></i>
+        <h3>{% if lang == 'en' %}Activate QR{% else %}QR’ı Aktive Et{% endif %}</h3>
+        <p>{% if lang == 'en' %}Scan the QR and enter your contact details once.{% else %}QR kodu okutun ve iletişim bilgilerinizi bir kez girin.{% endif %}</p>
+      </div>
+
+      <div class="step">
+        <i class="fa-solid fa-mobile-screen"></i>
+        <h3>{% if lang == 'en' %}Finder Scans{% else %}Bulan Kişi Okutur{% endif %}</h3>
+        <p>{% if lang == 'en' %}If the item is found, the QR opens your contact page.{% else %}Eşya bulunduğunda QR, iletişim sayfanızı açar.{% endif %}</p>
+      </div>
+
+      <div class="step">
+        <i class="fa-solid fa-handshake"></i>
+        <h3>{% if lang == 'en' %}Item Returns{% else %}Eşya Geri Döner{% endif %}</h3>
+        <p>{% if lang == 'en' %}The finder reaches you and the item returns safely.{% else %}Bulan kişi size ulaşır ve eşyanız güvenle geri döner.{% endif %}</p>
+      </div>
+    </section>
+
+    <section class="showroom">
+      <h2>
+        {% if lang == 'en' %}
+          Product <span>Showroom</span>
+        {% else %}
+          Ürün <span>Showroom</span>
+        {% endif %}
+      </h2>
+
+      <p class="showroom-desc">
+        {% if lang == 'en' %}
+          VistaQR can be used on everyday items that are easy to lose and valuable to recover.
+        {% else %}
+          VistaQR, günlük hayatta kolay kaybolabilen ve geri dönmesi değerli olan birçok üründe kullanılabilir.
+        {% endif %}
+      </p>
+
+      <div class="products">
+        <div class="product">
+          <div class="product-icon"><i class="fa-solid fa-key"></i></div>
+          <h3>{% if lang == 'en' %}Keychain{% else %}Anahtarlık{% endif %}</h3>
+          <p>{% if lang == 'en' %}Perfect for keys, car keys and daily carry items.{% else %}Ev, araç anahtarı ve günlük taşıdığınız eşyalar için idealdir.{% endif %}</p>
+        </div>
+
+        <div class="product">
+          <div class="product-icon"><i class="fa-solid fa-suitcase-rolling"></i></div>
+          <h3>{% if lang == 'en' %}Luggage Tag{% else %}Valiz Etiketi{% endif %}</h3>
+          <p>{% if lang == 'en' %}Useful for travel bags, luggage and backpacks.{% else %}Seyahat çantaları, valizler ve sırt çantaları için kullanışlıdır.{% endif %}</p>
+        </div>
+
+        <div class="product">
+          <div class="product-icon"><i class="fa-regular fa-address-card"></i></div>
+          <h3>{% if lang == 'en' %}Wallet Card{% else %}Cüzdan Kartı{% endif %}</h3>
+          <p>{% if lang == 'en' %}A slim QR card for wallets, card holders and personal items.{% else %}Cüzdan, kartlık ve kişisel eşyalar için ince QR kart çözümüdür.{% endif %}</p>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <a href="{{ url_for('user_login') }}" class="btn btn-gold">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          {% if lang == 'en' %}User Login{% else %}Kullanıcı Girişi{% endif %}
+        </a>
+
+        <a href="https://www.instagram.com/vistaqr1/" target="_blank" rel="noopener" class="btn btn-dark">
+          <i class="fa-brands fa-instagram"></i>
+          Instagram
+        </a>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

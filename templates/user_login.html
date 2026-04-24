@@ -1,134 +1,383 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ 'Kullanıcı Girişi | VistaQR' if lang == 'tr' else 'User Login | VistaQR' }}</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #d7a84a;
+            --gold-soft: #f0c46a;
+            --navy: #010916;
+            --text-soft: rgba(255,255,255,0.78);
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #000428, #004e92); /* about.html ile aynı */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
             color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+                radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+                linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+                radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+                radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+                radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+            background-size: 240px 240px;
+            opacity: .8;
+        }
+
+        body::after {
+            background:
+                linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+                linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+            opacity: .55;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 18px;
+        }
+
+        .topbar {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-end;
         }
 
         .lang-switch {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
         }
 
         .lang-switch a {
-            color: #fff;
             text-decoration: none;
-            margin: 0 5px;
-            transition: 0.2s;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 999px;
+            opacity: 0.78;
+            transition: 0.25s ease;
         }
 
-        .lang-switch a:hover {
-            text-decoration: underline;
+        .lang-switch a.active {
+            opacity: 1;
+            color: #fff3c4;
+            background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+            border: 1px solid rgba(240,196,106,0.3);
+        }
+
+        .login-wrap {
+            flex: 1;
+            width: 100%;
+            max-width: 470px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 36px 0;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.13);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 40px 35px;
-            width: 380px;
+            width: 100%;
+            padding: 38px 30px 30px;
+            border-radius: 32px;
+            background: linear-gradient(180deg, rgba(8,30,70,0.86), rgba(2,15,40,0.94));
+            border: 1.5px solid rgba(215,168,74,0.42);
+            box-shadow:
+                0 22px 80px rgba(0,0,0,0.42),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            animation: fade 0.5s ease-out;
+            animation: fade 0.45s ease-out;
         }
 
         @keyframes fade {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .logo {
+            width: 140px;
+            max-width: 50vw;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .system-name {
+            color: var(--gold-soft);
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
         h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #fff;
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            color: #f8f5ef;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            color: var(--text-soft);
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 12px auto 26px;
+            max-width: 360px;
+        }
+
+        .input-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 64px;
+            padding: 0 16px;
+            border-radius: 17px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(3,17,42,0.95), rgba(1,11,29,0.98));
+            margin-bottom: 13px;
+        }
+
+        .input-icon {
+            width: 32px;
+            min-width: 32px;
+            color: var(--gold-soft);
+            font-size: 19px;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 10px;
             border: none;
-            background: rgba(255,255,255,0.9);
+            outline: none;
+            background: transparent;
+            color: #fff;
+            font-family: inherit;
             font-size: 15px;
         }
 
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            border-radius: 10px;
-            border: none;
-            background: #003e7d;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
+        input::placeholder {
+            color: rgba(255,255,255,0.52);
         }
 
-        button:hover {
-            background: #0055aa;
+        .submit-btn {
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-top: 8px;
+            cursor: pointer;
+            color: #1d1a12;
+            background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.30),
+                inset 0 1px 0 rgba(255,255,255,0.45);
+            font-size: 16px;
+            font-weight: 700;
+            transition: 0.25s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
         }
 
         .error {
-            color: #ff6961;
-            margin-top: 10px;
-            font-size: 14px;
+            background: rgba(220, 38, 38, 0.16);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #ffe5e5;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin: 15px 0 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .links {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            color: rgba(255,255,255,0.45);
         }
 
         .links a {
-            color: #cde6ff;
+            color: #fff3c4;
             text-decoration: none;
             font-size: 14px;
-            margin: 0 5px;
+            font-weight: 500;
         }
 
         .links a:hover {
             text-decoration: underline;
         }
+
+        .secure-note {
+            margin-top: 22px;
+            color: rgba(255,255,255,0.70);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .secure-note i {
+            color: var(--gold-soft);
+            margin-right: 6px;
+        }
+
+        @media(max-width: 560px) {
+            .page {
+                padding: 18px 14px;
+            }
+
+            .topbar {
+                justify-content: center;
+            }
+
+            .login-wrap {
+                padding: 28px 0;
+                align-items: flex-start;
+            }
+
+            .card {
+                padding: 30px 18px 24px;
+                border-radius: 26px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            .system-name {
+                letter-spacing: 2px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div class="page">
 
-    <div class="lang-switch">
-        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
-        <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
-    </div>
-
-    <div class="card">
-        <h2>{{ 'Kullanıcı Girişi' if lang == 'tr' else 'User Login' }}</h2>
-
-        <form method="POST">
-            <input type="text" name="email" placeholder="{{ 'E-posta veya Telefon' if lang=='tr' else 'Email or Phone' }}" required>
-            <input type="password" name="password" placeholder="{{ 'Şifre' if lang=='tr' else 'Password' }}" required>
-
-            <button type="submit">{{ 'Giriş Yap' if lang=='tr' else 'Login' }}</button>
-
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
-        </form>
-
-        <div class="links" style="margin-top:15px;">
-            <a href="{{ url_for('home') }}">{{ 'Ana Sayfa' if lang=='tr' else 'Home' }}</a> |
-            <a href="{{ url_for('forgot_password') }}">{{ 'Şifremi Unuttum' if lang=='tr' else 'Forgot Password' }}</a>
+        <div class="topbar">
+            <div class="lang-switch">
+                <a href="{{ url_for('set_language', lang_code='tr') }}" class="{% if lang == 'tr' %}active{% endif %}">TR</a>
+                <a href="{{ url_for('set_language', lang_code='en') }}" class="{% if lang == 'en' %}active{% endif %}">EN</a>
+            </div>
         </div>
-    </div>
 
+        <main class="login-wrap">
+            <section class="card">
+                <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" alt="Vista QR Logo" class="logo">
+
+                <div class="system-name">
+                    {% if lang == 'en' %}
+                        QR KEYCHAIN SYSTEM
+                    {% else %}
+                        QR ANAHTARLIK SİSTEMİ
+                    {% endif %}
+                </div>
+
+                <h2>
+                    {% if lang == 'en' %}
+                        User Login
+                    {% else %}
+                        Kullanıcı Girişi
+                    {% endif %}
+                </h2>
+
+                <p class="subtitle">
+                    {% if lang == 'en' %}
+                        Sign in with your email address or phone number to manage your activated QR keychains.
+                    {% else %}
+                        Aktive edilmiş QR anahtarlıklarınızı yönetmek için e-posta adresiniz veya telefon numaranızla giriş yapın.
+                    {% endif %}
+                </p>
+
+                <form method="POST">
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-regular fa-user"></i></div>
+                        <input type="text"
+                               name="email"
+                               placeholder="{{ 'E-posta veya Telefon' if lang=='tr' else 'Email or Phone Number' }}"
+                               required>
+                    </div>
+
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password"
+                               name="password"
+                               placeholder="{{ 'Şifre' if lang=='tr' else 'Password' }}"
+                               required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        {{ 'Giriş Yap' if lang=='tr' else 'Login' }}
+                    </button>
+
+                    {% if error %}
+                        <div class="error">{{ error }}</div>
+                    {% endif %}
+                </form>
+
+                <div class="links">
+                    <a href="{{ url_for('home') }}">{{ 'Ana Sayfa' if lang=='tr' else 'Home' }}</a>
+                    <span>|</span>
+                    <a href="{{ url_for('forgot_password') }}">{{ 'Şifremi Unuttum' if lang=='tr' else 'Forgot Password' }}</a>
+                </div>
+
+                <div class="secure-note">
+                    <i class="fa-regular fa-shield"></i>
+                    {% if lang == 'en' %}
+                        Your account information is protected securely.
+                    {% else %}
+                        Hesap bilgileriniz güvenli şekilde korunur.
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+
+    </div>
 </body>
 </html>

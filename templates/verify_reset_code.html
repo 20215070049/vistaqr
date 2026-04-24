@@ -1,154 +1,413 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if lang == 'tr' %}Kod Doğrulama | VistaQR{% else %}Code Verification | VistaQR{% endif %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
+        * { box-sizing: border-box; }
+
+        :root {
+            --gold-soft: #f0c46a;
+            --text-soft: rgba(255,255,255,0.78);
+        }
+
         body {
             margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #002d63, #0059b3);
-            color: #fff;
-            text-align: center;
             min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+                radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+                linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+                radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+                radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+                radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+            background-size: 240px 240px;
+            opacity: .8;
+        }
+
+        body::after {
+            background:
+                linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+                linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+            opacity: .55;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 18px;
+        }
+
+        .topbar {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .lang-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-switch a {
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 999px;
+            opacity: 0.78;
+        }
+
+        .lang-switch a.active {
+            opacity: 1;
+            color: #fff3c4;
+            background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+            border: 1px solid rgba(240,196,106,0.3);
+        }
+
+        .wrap {
+            flex: 1;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 36px 0;
         }
 
         .card {
-            width: 90%;
-            max-width: 420px;
-            background: rgba(255,255,255,0.1);
-            padding: 28px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            width: 100%;
+            padding: 38px 30px 30px;
+            border-radius: 32px;
+            background: linear-gradient(180deg, rgba(8,30,70,0.86), rgba(2,15,40,0.94));
+            border: 1.5px solid rgba(215,168,74,0.42);
+            box-shadow:
+                0 22px 80px rgba(0,0,0,0.42),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
+            text-align: center;
+        }
+
+        .logo {
+            width: 140px;
+            max-width: 50vw;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .system-name {
+            color: var(--gold-soft);
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .icon-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-soft);
+            border: 1.5px solid rgba(240,196,106,0.55);
+            background: rgba(240,196,106,0.08);
+            font-size: 28px;
         }
 
         h1 {
-            margin-bottom: 10px;
-            color: #00c2ff;
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            color: #f8f5ef;
+            line-height: 1.1;
         }
 
-        p.desc {
-            color: #dbeafe;
+        .desc {
+            color: var(--text-soft);
             font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 20px;
+            line-height: 1.6;
+            margin: 12px auto 20px;
+            max-width: 370px;
+        }
+
+        .email-box {
+            display: inline-flex;
+            max-width: 100%;
+            margin-bottom: 15px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: #bbf7d0;
+            font-size: 13px;
+            word-break: break-word;
         }
 
         .message {
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-bottom: 14px;
-            font-size: 14px;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin: 0 0 14px;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         .success {
-            background: rgba(34,197,94,0.18);
+            background: rgba(34, 197, 94, 0.16);
+            border: 1px solid rgba(34, 197, 94, 0.35);
             color: #dcfce7;
-            border: 1px solid rgba(34,197,94,0.35);
         }
 
         .error {
-            background: rgba(239,68,68,0.18);
-            color: #fee2e2;
-            border: 1px solid rgba(239,68,68,0.35);
+            background: rgba(220, 38, 38, 0.16);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #ffe5e5;
+        }
+
+        .input-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 62px;
+            padding: 0 16px;
+            border-radius: 17px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(3,17,42,0.95), rgba(1,11,29,0.98));
+            margin-bottom: 13px;
+        }
+
+        .input-icon {
+            width: 28px;
+            min-width: 28px;
+            color: var(--gold-soft);
+            font-size: 18px;
         }
 
         input {
             width: 100%;
-            box-sizing: border-box;
-            padding: 12px;
-            margin: 10px 0;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #00aaff;
-            color: white;
+            outline: none;
+            background: transparent;
+            color: #fff;
+            font-family: inherit;
             font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
         }
 
-        button:hover {
-            background: #0090dd;
+        input::placeholder {
+            color: rgba(255,255,255,0.52);
+        }
+
+        .eye-btn {
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.62);
+            font-size: 17px;
+            cursor: pointer;
+            padding: 0;
         }
 
         .hint {
             font-size: 12px;
-            color: #dbeafe;
-            margin-top: -4px;
-            margin-bottom: 8px;
+            color: rgba(255,255,255,0.62);
             text-align: left;
+            margin: -5px 0 12px 4px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-top: 8px;
+            cursor: pointer;
+            color: #1d1a12;
+            background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.30),
+                inset 0 1px 0 rgba(255,255,255,0.45);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 18px;
+            color: #fff3c4;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @media(max-width: 560px) {
+            .page { padding: 18px 14px; }
+            .topbar { justify-content: center; }
+            .wrap { padding: 28px 0; align-items: flex-start; }
+            .card { padding: 30px 18px 24px; border-radius: 26px; }
+            h1 { font-size: 31px; }
+            .system-name { letter-spacing: 2px; }
         }
     </style>
 </head>
+
 <body>
-    <div class="card">
-        <h1>{% if lang == 'tr' %}Kod Doğrulama{% else %}Code Verification{% endif %}</h1>
-
-        <p class="desc">
-            {% if lang == 'tr' %}
-                {{ email }} adresine gönderilen 6 haneli kodu girin ve yeni şifrenizi belirleyin.
-            {% else %}
-                Enter the 6-digit code sent to {{ email }} and set your new password.
-            {% endif %}
-        </p>
-
-        {% if success %}
-            <div class="message success">{{ success }}</div>
-        {% endif %}
-
-        {% if error %}
-            <div class="message error">{{ error }}</div>
-        {% endif %}
-
-        <form method="POST">
-            <input
-                type="text"
-                name="code"
-                placeholder="{% if lang == 'tr' %}6 haneli kod{% else %}6-digit code{% endif %}"
-                maxlength="6"
-                required
-            >
-
-            <input
-                type="password"
-                name="password"
-                placeholder="{% if lang == 'tr' %}Yeni şifre{% else %}New password{% endif %}"
-                required
-            >
-
-            <div class="hint">
-                {% if lang == 'tr' %}
-                    En az 6 karakter önerilir.
-                {% else %}
-                    At least 6 characters is recommended.
-                {% endif %}
+    <div class="page">
+        <div class="topbar">
+            <div class="lang-switch">
+                <a href="{{ url_for('set_language', lang_code='tr') }}" class="{% if lang == 'tr' %}active{% endif %}">TR</a>
+                <a href="{{ url_for('set_language', lang_code='en') }}" class="{% if lang == 'en' %}active{% endif %}">EN</a>
             </div>
+        </div>
 
-            <input
-                type="password"
-                name="confirm_password"
-                placeholder="{% if lang == 'tr' %}Yeni şifre tekrar{% else %}Confirm new password{% endif %}"
-                required
-            >
+        <main class="wrap">
+            <section class="card">
+                <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" alt="Vista QR Logo" class="logo">
 
-            <button type="submit">
-                {% if lang == 'tr' %}Şifreyi Güncelle{% else %}Update Password{% endif %}
-            </button>
-        </form>
+                <div class="system-name">
+                    {% if lang == 'en' %}QR KEYCHAIN SYSTEM{% else %}QR ANAHTARLIK SİSTEMİ{% endif %}
+                </div>
+
+                <div class="icon-circle">
+                    <i class="fa-regular fa-envelope"></i>
+                </div>
+
+                <h1>{% if lang == 'tr' %}Kod Doğrulama{% else %}Code Verification{% endif %}</h1>
+
+                <p class="desc">
+                    {% if lang == 'tr' %}
+                        E-posta adresinize gönderilen 6 haneli kodu girin ve yeni şifrenizi belirleyin.
+                    {% else %}
+                        Enter the 6-digit code sent to your email address and set your new password.
+                    {% endif %}
+                </p>
+
+                {% if email %}
+                    <div class="email-box">
+                        <i class="fa-regular fa-envelope" style="margin-right:8px;"></i>
+                        {{ email }}
+                    </div>
+                {% endif %}
+
+                {% if success %}
+                    <div class="message success">{{ success }}</div>
+                {% endif %}
+
+                {% if error %}
+                    <div class="message error">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <input
+                            type="text"
+                            name="code"
+                            inputmode="numeric"
+                            maxlength="6"
+                            placeholder="{% if lang == 'tr' %}6 haneli kod{% else %}6-digit code{% endif %}"
+                            required
+                        >
+                    </div>
+
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            placeholder="{% if lang == 'tr' %}Yeni şifre{% else %}New password{% endif %}"
+                            required
+                        >
+                        <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
+                            <i class="fa-regular fa-eye-slash"></i>
+                        </button>
+                    </div>
+
+                    <div class="hint">
+                        {% if lang == 'tr' %}En az 6 karakter olmalıdır.{% else %}Must be at least 6 characters.{% endif %}
+                    </div>
+
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            id="confirm_password"
+                            placeholder="{% if lang == 'tr' %}Yeni şifre tekrar{% else %}Confirm new password{% endif %}"
+                            required
+                        >
+                        <button type="button" class="eye-btn" onclick="togglePassword('confirm_password', this)">
+                            <i class="fa-regular fa-eye-slash"></i>
+                        </button>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-rotate"></i>
+                        {% if lang == 'tr' %}Şifreyi Güncelle{% else %}Update Password{% endif %}
+                    </button>
+                </form>
+
+                <a href="{{ url_for('user_login') }}" class="back-link">
+                    {% if lang == 'tr' %}Giriş Sayfasına Dön{% else %}Back to Login{% endif %}
+                </a>
+            </section>
+        </main>
     </div>
+
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    </script>
 </body>
 </html>

@@ -43,7 +43,7 @@
             'feature_3_desc': 'Tek adımda anahtarlığınızı size özel hale getirin.',
             'footer': 'GÜVENLİ • HIZLI • KOLAY',
             'min_char': 'En az 6 karakter olmalıdır.',
-            'qr_info': 'Aktive edilen QR'
+            'qr_info': 'Aktive edilecek QR Kimliği'
         },
         'en': {
             'system_name': 'QR KEYCHAIN SYSTEM',
@@ -75,14 +75,12 @@
             'feature_3_desc': 'Personalize your keychain in a single step.',
             'footer': 'SECURE • FAST • EASY',
             'min_char': 'Must be at least 6 characters.',
-            'qr_info': 'Activated QR'
+            'qr_info': 'QR ID to be activated'
         }
     } %}
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         :root {
             --gold: #d7a84a;
@@ -174,9 +172,7 @@
             opacity: 1;
         }
 
-        .lang-btn:hover {
-            opacity: 1;
-        }
+        .lang-btn:hover { opacity: 1; }
 
         .brand {
             text-align: center;
@@ -251,7 +247,7 @@
 
         .hero-desc {
             max-width: 700px;
-            margin: 0 auto 26px;
+            margin: 0 auto 20px;
             text-align: center;
             font-size: 17px;
             line-height: 1.7;
@@ -260,19 +256,25 @@
 
         .qr-badge {
             width: fit-content;
-            margin: 0 auto 22px;
-            padding: 10px 16px;
-            border: 1px solid rgba(240,196,106,0.28);
+            max-width: 100%;
+            margin: 0 auto 24px;
+            padding: 12px 18px;
+            border: 1px solid rgba(240,196,106,0.38);
             border-radius: 999px;
-            background: rgba(255,255,255,0.03);
-            color: #f4d48c;
-            font-size: 13px;
+            background: rgba(240,196,106,0.08);
+            color: #f7d889;
+            font-size: 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+            text-align: center;
+            word-break: break-word;
         }
 
-        .form-grid {
-            display: grid;
-            gap: 14px;
+        .qr-badge strong {
+            color: #fff3c4;
+            letter-spacing: 0.4px;
         }
+
+        .form-grid { display: grid; gap: 14px; }
 
         .input-card {
             display: flex;
@@ -322,9 +324,7 @@
             white-space: nowrap;
         }
 
-        .field-wrap {
-            position: relative;
-        }
+        .field-wrap { position: relative; }
 
         .form-input,
         .form-textarea {
@@ -406,9 +406,7 @@
                 inset 0 1px 0 rgba(255,255,255,0.45);
         }
 
-        .submit-btn i {
-            margin: 0 10px;
-        }
+        .submit-btn i { margin: 0 10px; }
 
         .security-note {
             margin-top: 20px;
@@ -444,9 +442,7 @@
             border-right: 1px solid rgba(255,255,255,0.08);
         }
 
-        .feature:last-child {
-            border-right: none;
-        }
+        .feature:last-child { border-right: none; }
 
         .feature-icon {
             width: 58px;
@@ -490,26 +486,16 @@
         }
 
         @media (max-width: 768px) {
-            .page-shell {
-                padding: 16px 14px 28px;
-            }
+            .page-shell { padding: 16px 14px 28px; }
 
             .main-card {
                 padding: 24px 18px 22px;
                 border-radius: 24px;
             }
 
-            .hero-title .top {
-                font-size: 42px;
-            }
-
-            .hero-title .bottom {
-                font-size: 46px;
-            }
-
-            .hero-desc {
-                font-size: 15px;
-            }
+            .hero-title .top { font-size: 42px; }
+            .hero-title .bottom { font-size: 46px; }
+            .hero-desc { font-size: 15px; }
 
             .input-card {
                 min-height: 78px;
@@ -524,22 +510,16 @@
             }
 
             .form-input,
-            .form-textarea {
-                font-size: 15px;
-            }
+            .form-textarea { font-size: 15px; }
 
-            .features {
-                grid-template-columns: 1fr;
-            }
+            .features { grid-template-columns: 1fr; }
 
             .feature {
                 border-right: none;
                 border-bottom: 1px solid rgba(255,255,255,0.08);
             }
 
-            .feature:last-child {
-                border-bottom: none;
-            }
+            .feature:last-child { border-bottom: none; }
 
             .footer-brand {
                 letter-spacing: 3px;
@@ -548,17 +528,10 @@
         }
 
         @media (max-width: 480px) {
-            .topbar {
-                justify-content: center;
-            }
+            .topbar { justify-content: center; }
 
-            .hero-title .top {
-                font-size: 34px;
-            }
-
-            .hero-title .bottom {
-                font-size: 38px;
-            }
+            .hero-title .top { font-size: 34px; }
+            .hero-title .bottom { font-size: 38px; }
 
             .submit-btn {
                 font-size: 16px;
@@ -602,7 +575,9 @@
             </p>
 
             <div class="qr-badge">
-                {{ t[current_lang]['qr_info'] }}: <strong>{{ qr_code_id }}</strong>
+                <i class="fa-solid fa-qrcode"></i>
+                {{ t[current_lang]['qr_info'] }}:
+                <strong>{{ qr_code_id }}</strong>
             </div>
 
             {% if error %}

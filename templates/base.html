@@ -1,124 +1,254 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}VistaQR{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #d7a84a;
+      --gold-soft: #f0c46a;
+      --navy: #010916;
+      --navy-2: #02193d;
+      --text-soft: rgba(255,255,255,0.78);
+    }
+
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #002d63, #0059b3);
-      color: #fff;
       margin: 0;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+        linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
       overflow-x: hidden;
     }
 
-    /* Üst Menü */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background:
+        radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+        radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+        radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+        radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+      background-size: 240px 240px;
+      opacity: .8;
+    }
+
+    body::after {
+      background:
+        linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+        linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+      opacity: .55;
+    }
+
     header {
-      width: 100%;
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: calc(100% - 32px);
+      max-width: 1120px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 50px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1000;
+      gap: 14px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     header a {
-      color: #fff;
+      color: rgba(255,255,255,0.86);
       text-decoration: none;
-      margin: 0 12px;
-      font-weight: 500;
-      transition: 0.3s;
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.25s ease;
+      white-space: nowrap;
     }
 
     header a:hover {
-      color: #00aaff;
-      text-decoration: underline;
+      color: #fff3c4;
+      background: rgba(240,196,106,0.12);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 999px;
+      padding: 4px;
     }
 
     .lang-switch a {
-      color: #fff;
-      text-decoration: none;
-      margin: 0 5px;
-      font-weight: bold;
-      transition: 0.3s;
+      padding: 8px 10px;
+      font-size: 13px;
+      opacity: 0.78;
     }
 
-    .lang-switch a:hover {
-      color: #00aaff;
+    .lang-switch a.active {
+      opacity: 1;
+      color: #fff3c4;
+      background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+      border: 1px solid rgba(240,196,106,0.3);
     }
 
     main {
-      flex: 1;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      min-height: 100vh;
+      padding: 120px 18px 80px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      padding: 140px 20px 80px;
-      animation: fadeIn 1.2s ease;
-      width: 100%;
       text-align: center;
     }
 
     footer {
-      padding: 25px;
-      font-size: 14px;
-      color: #a3c8ff;
-      opacity: 0.9;
-      background: rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+      padding: 24px 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.70);
       width: 100%;
       text-align: center;
+      background: rgba(0,0,0,0.16);
+      border-top: 1px solid rgba(255,255,255,0.08);
       backdrop-filter: blur(8px);
-      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
     }
 
-    /* Kart efekti */
     .glass-card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(12px);
-      padding: 40px;
-      max-width: 600px;
-      width: 90%;
-      animation: fadeInUp 1s ease;
-    }
-
-    /* Animasyonlar */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      background: linear-gradient(180deg, rgba(8,30,70,0.86), rgba(2,15,40,0.94));
+      border: 1.5px solid rgba(215,168,74,0.36);
+      border-radius: 28px;
+      box-shadow:
+        0 22px 70px rgba(0,0,0,0.36),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      padding: 36px;
+      max-width: 680px;
+      width: 100%;
+      animation: fadeInUp 0.65s ease;
     }
 
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
+      from { opacity: 0; transform: translateY(18px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
+    @media(max-width: 760px) {
+      header {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        width: calc(100% - 28px);
+        margin: 14px auto 0;
+        border-radius: 24px;
+        flex-direction: column;
+      }
+
+      .nav-left {
+        width: 100%;
+        justify-content: center;
+      }
+
+      header a {
+        font-size: 13px;
+        padding: 9px 10px;
+      }
+
+      main {
+        padding: 34px 14px 64px;
+        min-height: auto;
+      }
+
+      .glass-card {
+        padding: 24px 18px;
+        border-radius: 24px;
+      }
+    }
+
+    @media(max-width: 430px) {
+      .nav-left {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .nav-left a {
+        text-align: center;
+      }
+
+      .lang-switch {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   </style>
+
   {% block extra_styles %}{% endblock %}
 </head>
+
 <body>
 
   <header>
     <div class="nav-left">
-      <a href="{{ url_for('home') }}">🏠 {% if lang == 'tr' %}Ana Sayfa{% else %}Home{% endif %}</a>
-      <a href="{{ url_for('about') }}">ℹ️ {% if lang == 'tr' %}Hakkımızda{% else %}About{% endif %}</a>
-      <a href="{{ url_for('user_login') }}">👤 {% if lang == 'tr' %}Giriş{% else %}Login{% endif %}</a>
+      <a href="{{ url_for('home') }}">
+        <i class="fa-solid fa-house"></i>
+        {% if lang == 'tr' %}Ana Sayfa{% else %}Home{% endif %}
+      </a>
+
+      <a href="{{ url_for('about') }}">
+        <i class="fa-regular fa-circle-question"></i>
+        {% if lang == 'tr' %}Hakkımızda{% else %}About{% endif %}
+      </a>
+
+      <a href="{{ url_for('user_login') }}">
+        <i class="fa-regular fa-user"></i>
+        {% if lang == 'tr' %}Giriş{% else %}Login{% endif %}
+      </a>
     </div>
+
     <div class="lang-switch">
-      <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
-      <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+      <a href="{{ url_for('set_language', lang_code='tr') }}" class="{% if lang == 'tr' %}active{% endif %}">TR</a>
+      <a href="{{ url_for('set_language', lang_code='en') }}" class="{% if lang == 'en' %}active{% endif %}">EN</a>
     </div>
   </header>
 
@@ -127,7 +257,8 @@
   </main>
 
   <footer>
-    © 2025 VistaQR — {% if lang == 'tr' %}Tüm Hakları Saklıdır.{% else %}All Rights Reserved.{% endif %}
+    © 2025 VistaQR —
+    {% if lang == 'tr' %}Tüm hakları saklıdır.{% else %}All rights reserved.{% endif %}
   </footer>
 
 </body>

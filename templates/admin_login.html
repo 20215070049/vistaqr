@@ -1,134 +1,384 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ 'Yönetici Girişi | VistaQR' if lang == 'tr' else 'Admin Login | VistaQR' }}</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #000428, #004e92); /* aynı arka plan */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
             color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+                radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+                linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+                radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+                radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+                radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+            background-size: 240px 240px;
+            opacity: .8;
+        }
+
+        body::after {
+            background:
+                linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+                linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+            opacity: .55;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 18px;
+        }
+
+        .topbar {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-end;
         }
 
         .lang-switch {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
         }
 
         .lang-switch a {
-            color: #fff;
-            margin: 0 5px;
             text-decoration: none;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 999px;
+            opacity: 0.78;
         }
-        .lang-switch a:hover {
-            text-decoration: underline;
+
+        .lang-switch a.active {
+            opacity: 1;
+            color: #fff3c4;
+            background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+            border: 1px solid rgba(240,196,106,0.3);
+        }
+
+        .login-wrap {
+            flex: 1;
+            width: 100%;
+            max-width: 470px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 36px 0;
         }
 
         .card {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 40px 35px;
-            width: 380px;
+            width: 100%;
+            padding: 38px 30px 30px;
+            border-radius: 32px;
+            background: linear-gradient(180deg, rgba(8,30,70,0.86), rgba(2,15,40,0.94));
+            border: 1.5px solid rgba(215,168,74,0.42);
+            box-shadow:
+                0 22px 80px rgba(0,0,0,0.42),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-            animation: fadein 0.5s ease-out;
+            animation: fade 0.45s ease-out;
         }
 
-        @keyframes fadein {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .logo {
+            width: 140px;
+            max-width: 50vw;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .system-name {
+            color: #f0c46a;
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .admin-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f0c46a;
+            border: 1.5px solid rgba(240,196,106,0.55);
+            background: rgba(240,196,106,0.08);
+            font-size: 28px;
+        }
+
         h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #fff;
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            color: #f8f5ef;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.78);
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 12px auto 26px;
+            max-width: 360px;
+        }
+
+        .input-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 64px;
+            padding: 0 16px;
+            border-radius: 17px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(3,17,42,0.95), rgba(1,11,29,0.98));
+            margin-bottom: 13px;
+        }
+
+        .input-icon {
+            width: 32px;
+            min-width: 32px;
+            color: #f0c46a;
+            font-size: 19px;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            margin: 8px 0;
             border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            background: rgba(255,255,255,0.9);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 12px;
-            border-radius: 10px;
-            border: none;
-            background: #003e7d;
+            outline: none;
+            background: transparent;
             color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
+            font-family: inherit;
+            font-size: 15px;
         }
 
-        button:hover {
-            background: #0055aa;
+        input::placeholder {
+            color: rgba(255,255,255,0.52);
+        }
+
+        .submit-btn {
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-top: 8px;
+            cursor: pointer;
+            color: #1d1a12;
+            background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.30),
+                inset 0 1px 0 rgba(255,255,255,0.45);
+            font-size: 16px;
+            font-weight: 700;
+            transition: 0.25s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
         }
 
         .error {
-            margin-top: 10px;
-            color: #ff6b6b;
-            font-size: 14px;
+            background: rgba(220, 38, 38, 0.16);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #ffe5e5;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin: 15px 0 0;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         .link {
-            margin-top: 15px;
+            margin-top: 18px;
         }
 
         .link a {
-            color: #cde6ff;
+            color: #fff3c4;
             text-decoration: none;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .link a:hover {
             text-decoration: underline;
         }
+
+        .secure-note {
+            margin-top: 22px;
+            color: rgba(255,255,255,0.70);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .secure-note i {
+            color: #f0c46a;
+            margin-right: 6px;
+        }
+
+        @media(max-width: 560px) {
+            .page {
+                padding: 18px 14px;
+            }
+
+            .topbar {
+                justify-content: center;
+            }
+
+            .login-wrap {
+                padding: 28px 0;
+                align-items: flex-start;
+            }
+
+            .card {
+                padding: 30px 18px 24px;
+                border-radius: 26px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            .system-name {
+                letter-spacing: 2px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div class="page">
 
-    <div class="lang-switch">
-        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
-        <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
-    </div>
-
-    <div class="card">
-        <h2>{{ 'Yönetici Girişi' if lang == 'tr' else 'Admin Login' }}</h2>
-
-        <form method="POST">
-            <input type="text" name="username" placeholder="{{ 'Kullanıcı Adı' if lang == 'tr' else 'Username' }}" required>
-            <input type="password" name="password" placeholder="{{ 'Parola' if lang == 'tr' else 'Password' }}" required>
-
-            <button type="submit">{{ 'Giriş Yap' if lang == 'tr' else 'Login' }}</button>
-
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
-        </form>
-
-        <div class="link">
-            <a href="{{ url_for('home') }}">{{ 'Ana Sayfa' if lang=='tr' else 'Home' }}</a>
+        <div class="topbar">
+            <div class="lang-switch">
+                <a href="{{ url_for('set_language', lang_code='tr') }}" class="{% if lang == 'tr' %}active{% endif %}">TR</a>
+                <a href="{{ url_for('set_language', lang_code='en') }}" class="{% if lang == 'en' %}active{% endif %}">EN</a>
+            </div>
         </div>
-    </div>
 
+        <main class="login-wrap">
+            <section class="card">
+                <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" alt="Vista QR Logo" class="logo">
+
+                <div class="system-name">
+                    {% if lang == 'en' %}
+                        ADMIN MANAGEMENT PANEL
+                    {% else %}
+                        YÖNETİCİ KONTROL PANELİ
+                    {% endif %}
+                </div>
+
+                <div class="admin-icon">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+
+                <h2>
+                    {% if lang == 'en' %}
+                        Admin Login
+                    {% else %}
+                        Yönetici Girişi
+                    {% endif %}
+                </h2>
+
+                <p class="subtitle">
+                    {% if lang == 'en' %}
+                        Sign in to manage QR codes, users and system settings.
+                    {% else %}
+                        QR kodları, kullanıcıları ve sistem ayarlarını yönetmek için giriş yapın.
+                    {% endif %}
+                </p>
+
+                <form method="POST">
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-regular fa-user"></i></div>
+                        <input type="text"
+                               name="username"
+                               placeholder="{{ 'Kullanıcı Adı' if lang == 'tr' else 'Username' }}"
+                               required>
+                    </div>
+
+                    <div class="input-card">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password"
+                               name="password"
+                               placeholder="{{ 'Parola' if lang == 'tr' else 'Password' }}"
+                               required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        {{ 'Giriş Yap' if lang == 'tr' else 'Login' }}
+                    </button>
+
+                    {% if error %}
+                        <div class="error">{{ error }}</div>
+                    {% endif %}
+                </form>
+
+                <div class="link">
+                    <a href="{{ url_for('home') }}">
+                        {% if lang == 'tr' %}Ana Sayfaya Dön{% else %}Back to Home{% endif %}
+                    </a>
+                </div>
+
+                <div class="secure-note">
+                    <i class="fa-regular fa-shield"></i>
+                    {% if lang == 'en' %}
+                        Administrator access is protected.
+                    {% else %}
+                        Yönetici erişimi güvenli şekilde korunur.
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+
+    </div>
 </body>
 </html>

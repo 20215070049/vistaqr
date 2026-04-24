@@ -1,16 +1,132 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="utf-8">
-    <title>VistaQR Uyarı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if lang == 'en' %}Warning | VistaQR{% else %}Uyarı | VistaQR{% endif %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
-        body { background:#fff3e0; font-family:sans-serif; text-align:center; padding-top:100px; }
-        h3 { color:#e65100; }
-        a { text-decoration:none; color:#1565c0; }
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+                radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+                linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            padding: 34px 24px 28px;
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(8,30,70,0.88), rgba(2,15,40,0.96));
+            border: 1.5px solid rgba(215,168,74,0.42);
+            box-shadow: 0 22px 80px rgba(0,0,0,0.42);
+            text-align: center;
+        }
+
+        .logo {
+            width: 130px;
+            margin-bottom: 10px;
+        }
+
+        .system-name {
+            color: #f0c46a;
+            letter-spacing: 3px;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #ffb74d;
+            background: rgba(255,152,0,0.15);
+            border: 1px solid rgba(255,183,77,0.4);
+        }
+
+        h2 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+        }
+
+        p {
+            margin: 14px 0 24px;
+            font-size: 15px;
+            color: rgba(255,255,255,0.75);
+        }
+
+        a {
+            display: inline-flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 14px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #f0c46a, #c98f2f);
+            color: #1d1a12;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        @media(max-width: 560px) {
+            .card {
+                padding: 28px 18px;
+            }
+
+            h2 {
+                font-size: 26px;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <h3>{{ message }}</h3>
-    <a href="/">Ana Sayfaya Dön</a>
+
+<div class="card">
+
+    <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" class="logo">
+
+    <div class="system-name">
+        {% if lang == 'en' %}QR KEYCHAIN SYSTEM{% else %}QR ANAHTARLIK SİSTEMİ{% endif %}
+    </div>
+
+    <div class="icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+
+    <h2>
+        {% if lang == 'en' %}Warning{% else %}Uyarı{% endif %}
+    </h2>
+
+    <p>{{ message }}</p>
+
+    <a href="{{ url_for('home') }}">
+        <i class="fa-solid fa-house"></i>
+        {% if lang == 'en' %}Go to Home{% else %}Ana Sayfaya Dön{% endif %}
+    </a>
+
+</div>
+
 </body>
 </html>

@@ -1,54 +1,142 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="utf-8">
-    <title>VistaQR - Şifre değiştirme işlemi Başarılı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if lang == 'en' %}Success | VistaQR{% else %}Başarılı | VistaQR{% endif %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
+        * { box-sizing: border-box; }
+
         body {
-            background: #e8f5e9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+                radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+                linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
+            padding: 18px;
         }
-        .box {
-            background-color: white;
-            border-radius: 15px;
-            padding: 50px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+
+        .card {
+            width: 100%;
+            max-width: 430px;
+            padding: 36px 26px 30px;
+            border-radius: 30px;
+            background: linear-gradient(180deg, rgba(8,30,70,0.88), rgba(2,15,40,0.96));
+            border: 1.5px solid rgba(215,168,74,0.42);
+            box-shadow: 0 22px 80px rgba(0,0,0,0.42);
             text-align: center;
         }
-        h2 {
-            color: #2e7d32;
+
+        .logo {
+            width: 135px;
+            max-width: 50vw;
+            margin-bottom: 12px;
         }
+
+        .system-name {
+            color: #f0c46a;
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
         .tick {
-            font-size: 60px;
-            color: #2e7d32;
-            margin-bottom: 20px;
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #86efac;
+            border: 1.5px solid rgba(134,239,172,0.5);
+            background: rgba(34,197,94,0.12);
+            font-size: 34px;
         }
+
+        h2 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            color: #f8f5ef;
+        }
+
+        p {
+            color: rgba(255,255,255,0.78);
+            line-height: 1.6;
+            font-size: 15px;
+            margin: 14px 0 24px;
+        }
+
+        b {
+            color: #fff3c4;
+        }
+
         a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #2e7d32;
-            color: white;
-            border-radius: 8px;
+            display: inline-flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            padding: 15px 18px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #f0c46a, #c98f2f);
+            color: #1d1a12;
+            font-weight: 700;
             text-decoration: none;
-            transition: 0.3s;
         }
-        a:hover {
-            background-color: #1b5e20;
+
+        @media(max-width: 560px) {
+            .card {
+                padding: 30px 18px 24px;
+                border-radius: 26px;
+            }
+
+            h2 {
+                font-size: 30px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="box">
-        <div class="tick">✔</div>
-        <h2>Aktivasyon Başarılı!</h2>
-        <p>Sayın <b>{{ name }}</b>,şifreniz güncellenmiştir.</p>
-        <a href="/">Ana Sayfaya Dön</a>
+    <div class="card">
+        <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" class="logo" alt="VistaQR">
+
+        <div class="system-name">
+            {% if lang == 'en' %}QR KEYCHAIN SYSTEM{% else %}QR ANAHTARLIK SİSTEMİ{% endif %}
+        </div>
+
+        <div class="tick">
+            <i class="fa-solid fa-check"></i>
+        </div>
+
+        <h2>{% if lang == 'en' %}Success!{% else %}Başarılı!{% endif %}</h2>
+
+        <p>
+            {% if lang == 'en' %}
+                Dear <b>{{ name }}</b>, your password has been updated successfully.
+            {% else %}
+                Sayın <b>{{ name }}</b>, şifreniz başarıyla güncellendi.
+            {% endif %}
+        </p>
+
+        <a href="{{ url_for('user_login') }}">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            {% if lang == 'en' %}Go to Login{% else %}Giriş Sayfasına Dön{% endif %}
+        </a>
     </div>
 </body>
 </html>

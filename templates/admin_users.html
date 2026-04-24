@@ -6,160 +6,357 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #000428, #004e92);
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), transparent 35%),
+                linear-gradient(135deg, #020617, #0f172a 45%, #001b3d);
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             color: #f5f7ff;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        .card {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(18px);
-            border-radius: 20px;
-            padding: 20px 25px 25px 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-            margin-top: 20px;
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 10px;
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtext {
+            margin-top: 8px;
+            color: #b8c7e8;
+            font-size: 14px;
         }
 
         .back-link {
-            display: inline-block;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #cde6ff;
+            color: #dbeafe;
             text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            white-space: nowrap;
         }
+
         .back-link:hover {
-            text-decoration: underline;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.10);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 26px;
+            padding: 22px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 5px;
             font-size: 14px;
+            min-width: 900px;
         }
 
         th, td {
-            padding: 10px 8px;
+            padding: 13px 10px;
             text-align: left;
+            vertical-align: top;
         }
 
         thead {
             background: rgba(0,0,0,0.25);
         }
 
-        tbody tr:nth-child(even) {
-            background: rgba(255,255,255,0.06);
+        th {
+            color: #dbeafe;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        tbody tr:nth-child(odd) {
-            background: rgba(255,255,255,0.02);
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.045);
+        }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,0.08);
         }
 
         .empty {
             text-align: center;
-            padding: 25px 0;
+            padding: 32px 0;
             font-size: 15px;
             color: #dbe6ff;
         }
 
         .badge {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 5px 9px;
             border-radius: 999px;
             font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .badge-active {
-            background: #3CB371;
-            color: white;
+            background: rgba(34, 197, 94, 0.20);
+            color: #bbf7d0;
+            border: 1px solid rgba(34, 197, 94, 0.35);
         }
 
         .badge-inactive {
-            background: #FF6F6F;
-            color: white;
+            background: rgba(239, 68, 68, 0.20);
+            color: #fecaca;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .qr-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .qr-item {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 14px;
+            padding: 10px;
+        }
+
+        .qr-code {
+            display: block;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            word-break: break-word;
+        }
+
+        .qr-note {
+            display: block;
+            color: #b8c7e8;
+            font-size: 12px;
+            margin-top: 5px;
+            line-height: 1.4;
         }
 
         .actions {
             display: flex;
-            gap: 6px;
+            flex-wrap: wrap;
+            gap: 7px;
         }
 
         .btn {
             border: none;
-            border-radius: 6px;
-            padding: 6px 10px;
+            border-radius: 10px;
+            padding: 8px 11px;
             cursor: pointer;
             font-size: 12px;
             text-decoration: none;
             display: inline-block;
+            color: white;
+            line-height: 1;
         }
 
         .btn-view {
-            background: #1e90ff;
-            color: white;
+            background: #2563eb;
+        }
+
+        .btn-reset {
+            background: #f97316;
         }
 
         .btn-delete {
-            background: #cc0000;
+            background: #dc2626;
+        }
+
+        .btn:hover {
+            filter: brightness(1.12);
+        }
+
+        .user-delete-form {
+            margin-top: 8px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.68);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .modal-container {
+            width: 420px;
+            max-width: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+        }
+
+        .modal-title {
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+
+        .modal-warning {
+            color: #fde68a;
+            font-size: 13px;
+            margin-bottom: 14px;
+            line-height: 1.45;
+        }
+
+        .reset-qr-box {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 16px;
+            color: #dbeafe;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .modal-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 11px 14px;
             color: white;
+            cursor: pointer;
+            font-size: 14px;
         }
 
-        .btn-view:hover {
-            background: #4aa3ff;
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.12);
         }
 
-        .btn-delete:hover {
-            background: #ff3333;
+        .modal-btn.confirm {
+            background: #dc2626;
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .back-link {
+                width: 100%;
+                text-align: center;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            table {
+                min-width: 0;
+            }
+
             table, thead, tbody, th, td, tr {
                 display: block;
             }
+
             thead {
                 display: none;
             }
+
             tbody tr {
-                margin-bottom: 10px;
-                border-radius: 12px;
+                margin-bottom: 14px;
+                border-radius: 18px;
                 overflow: hidden;
+                background: rgba(255,255,255,0.07);
+                border: 1px solid rgba(255,255,255,0.10);
             }
+
             td {
-                padding: 8px 10px;
-                position: relative;
+                padding: 10px 12px;
             }
+
             td::before {
                 content: attr(data-label);
-                font-weight: 600;
+                font-weight: 700;
                 display: block;
-                margin-bottom: 3px;
+                margin-bottom: 5px;
                 color: #dbe6ff;
+                font-size: 12px;
             }
+
             .actions {
                 justify-content: flex-start;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
+
 <body>
 <div class="container">
-    <h1>VistaQR Kullanıcı Listesi</h1>
 
-    <a href="{{ url_for('admin_panel') }}" class="back-link">← Yönetim Paneline Dön</a>
+    <div class="topbar">
+        <div>
+            <h1>VistaQR Kullanıcı Listesi</h1>
+            <div class="subtext">Aktive olmuş kullanıcıları, bağlı QR kimliklerini ve reset işlemlerini buradan yönet.</div>
+        </div>
+
+        <a href="{{ url_for('admin_panel') }}" class="back-link">← Yönetim Paneline Dön</a>
+    </div>
 
     <div class="card">
         {% if users|length == 0 %}
@@ -174,18 +371,22 @@
                         <th>Ad Soyad</th>
                         <th>E-posta</th>
                         <th>Telefon</th>
-                        <th>QR Sayısı</th>
+                        <th>QR Kayıtları</th>
                         <th>Durum</th>
                         <th>İşlemler</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {% for u in users %}
                         {% set aktif_sayisi = (u.keychains | selectattr('status','equalto','active') | list | length) %}
                         {% set toplam_qr = u.keychains|length %}
+
                         <tr>
                             <td data-label="ID">{{ u.id }}</td>
+
                             <td data-label="Ad Soyad">{{ u.name or "-" }}</td>
+
                             <td data-label="E-posta">
                                 {% if u.email and not u.email.endswith('@vistaqr.local') %}
                                     {{ u.email }}
@@ -193,8 +394,47 @@
                                     -
                                 {% endif %}
                             </td>
+
                             <td data-label="Telefon">{{ u.phone or "-" }}</td>
-                            <td data-label="QR Sayısı">{{ toplam_qr }}</td>
+
+                            <td data-label="QR Kayıtları">
+                                {% if u.keychains %}
+                                    <div class="qr-list">
+                                        {% for keychain in u.keychains %}
+                                            <div class="qr-item">
+                                                <span class="qr-code">{{ keychain.qr_code_id }}</span>
+
+                                                {% if keychain.status == "active" %}
+                                                    <span class="badge badge-active">Aktif</span>
+                                                {% else %}
+                                                    <span class="badge badge-inactive">İnaktif</span>
+                                                {% endif %}
+
+                                                {% if keychain.note %}
+                                                    <span class="qr-note">Not: {{ keychain.note }}</span>
+                                                {% endif %}
+
+                                                <div class="actions" style="margin-top:8px;">
+                                                    <a class="btn btn-view"
+                                                       href="{{ url_for('view_keychain', qr_code_id=keychain.qr_code_id) }}"
+                                                       target="_blank">
+                                                        Görüntüle
+                                                    </a>
+
+                                                    <button type="button"
+                                                            class="btn btn-reset"
+                                                            onclick="openResetModal('{{ keychain.id }}', '{{ keychain.qr_code_id }}')">
+                                                        QR Sahipliğini Sıfırla
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
                             <td data-label="Durum">
                                 {% if aktif_sayisi > 0 %}
                                     <span class="badge badge-active">Aktif</span>
@@ -202,21 +442,14 @@
                                     <span class="badge badge-inactive">İnaktif</span>
                                 {% endif %}
                             </td>
+
                             <td data-label="İşlemler">
-                                <div class="actions">
-                                    {% if u.keychains %}
-                                        <a class="btn btn-view"
-                                           href="{{ url_for('view_keychain', qr_code_id=u.keychains[0].qr_code_id) }}"
-                                           target="_blank">
-                                            Görüntüle
-                                        </a>
-                                    {% endif %}
-                                    <form method="POST"
-                                          action="{{ url_for('delete_user', user_id=u.id) }}"
-                                          onsubmit="return confirm('Bu kullanıcı ve tüm QR kodları silinecek. Emin misiniz?');">
-                                        <button type="submit" class="btn btn-delete">Sil</button>
-                                    </form>
-                                </div>
+                                <form class="user-delete-form"
+                                      method="POST"
+                                      action="{{ url_for('delete_user', user_id=u.id) }}"
+                                      onsubmit="return confirm('Bu kullanıcı silinecek. Bağlı QR kodları silinmez, sahipsiz ve inaktif hale getirilir. Emin misiniz?');">
+                                    <button type="submit" class="btn btn-delete">Kullanıcıyı Sil</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
@@ -225,5 +458,58 @@
         {% endif %}
     </div>
 </div>
+
+<div class="modal-overlay" id="resetModal">
+    <div class="modal-container">
+        <div class="modal-title">QR Sahipliğini Sıfırla</div>
+
+        <div class="modal-text">
+            Bu işlem QR kodunu silmez. Sadece kullanıcı bağlantısını kaldırır ve QR tekrar sahipsiz/inaktif hale gelir.
+        </div>
+
+        <div class="modal-warning">
+            Yanlışlıkla işlem yapılmaması için lütfen QR kimliğini kontrol et.
+        </div>
+
+        <div class="reset-qr-box" id="resetQrText">
+            QR Kimliği: -
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="modal-btn cancel" onclick="closeResetModal()">Vazgeç</button>
+
+            <form method="POST" id="resetForm">
+                <button type="submit" class="modal-btn confirm">Evet, Sahipliği Sıfırla</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openResetModal(id, qrCode) {
+        document.getElementById('resetModal').style.display = 'flex';
+
+        document.getElementById('resetQrText').innerHTML =
+            'QR Kimliği: <b>' + qrCode + '</b>';
+
+        document.getElementById('resetForm').action =
+            '/vista-secret-panel-6334/reset-keychain/' + id;
+    }
+
+    function closeResetModal() {
+        document.getElementById('resetModal').style.display = 'none';
+        document.getElementById('resetQrText').innerHTML = 'QR Kimliği: -';
+        document.getElementById('resetForm').removeAttribute('action');
+    }
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('resetModal');
+
+        if (event.target === modal) {
+            closeResetModal();
+        }
+    });
+</script>
+
 </body>
 </html>

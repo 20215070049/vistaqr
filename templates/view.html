@@ -39,7 +39,23 @@
         .title {
             font-size: 26px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
+        }
+
+        .qr-id-box {
+            margin: 0 auto 20px auto;
+            padding: 11px 14px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #d7efff;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .qr-id-box strong {
+            color: #ffffff;
+            letter-spacing: 0.4px;
         }
 
         .info-box p {
@@ -118,6 +134,14 @@
                 Bulunan Eşya Sahibi
             {% endif %}
         </div>
+
+        {% if qr_code_id %}
+        <div class="qr-id-box">
+            <i class="fa-solid fa-qrcode"></i>
+            <strong>{% if lang == 'en' %}QR ID:{% else %}QR Kimliği:{% endif %}</strong>
+            {{ qr_code_id }}
+        </div>
+        {% endif %}
 
         <div class="info-box">
             <p>

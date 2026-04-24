@@ -5,348 +5,452 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VistaQR Yönetici Paneli</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #000428, #004e92);
             margin: 0;
-            padding: 20px;
-            color: white;
-            text-align: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), transparent 35%),
+                linear-gradient(135deg, #020617, #0f172a 45%, #001b3d);
+            color: #ffffff;
+            padding: 24px;
         }
 
-        .card {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(18px);
-            border-radius: 20px;
-            padding: 25px;
-            width: 450px;
+        .dashboard {
+            max-width: 1180px;
             margin: 0 auto;
-            margin-top: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-            animation: fadein 0.5s ease-out;
         }
 
-        .stats-box {
-            background: rgba(255,255,255,0.25);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand p {
+            margin: 8px 0 0;
+            color: #b8c7e8;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            color: #dbeafe;
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+            backdrop-filter: blur(18px);
+        }
+
+        .stat-card span {
+            color: #b8c7e8;
+            font-size: 13px;
+        }
+
+        .stat-card strong {
+            display: block;
+            margin-top: 10px;
+            font-size: 30px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 20px;
+        }
+
+        .panel-card {
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            backdrop-filter: blur(18px);
+        }
+
+        .panel-card h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+        }
+
+        .muted {
+            color: #b8c7e8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 18px;
+        }
+
+        .message {
+            background: rgba(34, 197, 94, 0.14);
+            border: 1px solid rgba(34, 197, 94, 0.28);
+            color: #dcfce7;
+            padding: 13px 15px;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            font-size: 14px;
         }
 
         input {
-            width: 95%;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            margin-top: 10px;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-
-        button {
-            margin-top: 15px;
-            width: 70%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: #003e7d;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.25s;
-        }
-
-        button:hover {
-            background: #0055aa;
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 12px;
-            margin-top: 5px;
-        }
-
-        .section-subtext {
-            font-size: 13px;
-            color: #dce9ff;
-            margin-bottom: 12px;
-            line-height: 1.5;
-        }
-
-        .current-admin-box {
-            background: rgba(255,255,255,0.18);
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            color: #eef5ff;
-        }
-
-        .user-list-btn,
-        .delete-inactive-btn {
-            display: block;
-            width: 70%;
-            margin: 15px auto 0 auto;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            font-size: 15px;
-            transition: 0.3s;
-            border: none;
-            cursor: pointer;
-            box-sizing: border-box;
-        }
-
-        .user-list-btn {
-            background: #1e90ff;
-        }
-        .user-list-btn:hover {
-            background: #4aa3ff;
-        }
-
-        .delete-inactive-btn {
-            background: #cc0000;
-        }
-        .delete-inactive-btn:hover {
-            background: #ff3333;
-        }
-
-        .update-admin-btn {
-            background: #16a34a;
             width: 100%;
-        }
-        .update-admin-btn:hover {
-            background: #22c55e;
-        }
-
-        .logout {
-            margin-top: 10px;
-        }
-        .logout a {
-            color: #cde6ff;
-            font-size: 14px;
-            text-decoration: none;
-        }
-        .logout a:hover {
-            text-decoration: underline;
+            padding: 15px 16px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.10);
+            color: #ffffff;
+            outline: none;
+            font-size: 15px;
+            margin-bottom: 12px;
         }
 
-        .chart-card {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(18px);
-            border-radius: 20px;
-            padding: 30px;
-            width: 550px;
-            margin: 30px auto;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-            animation: fadein 0.5s ease-out;
+        input::placeholder {
+            color: #9fb3d9;
         }
 
-        #qrChart {
-            max-width: 350px;
-            max-height: 350px;
-            margin: 0 auto;
+        input:focus {
+            border-color: rgba(96, 165, 250, 0.85);
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
         }
 
-        @keyframes fadein {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* MODAL */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-
-        .modal-container {
-            background: rgba(255, 255, 255, 0.14);
-            backdrop-filter: blur(18px);
-            border-radius: 20px;
-            padding: 25px 25px 20px 25px;
-            width: 360px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: left;
-            color: #f0f4ff;
-            animation: fadein 0.2s ease-out;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .modal-text {
-            font-size: 14px;
-            line-height: 1.4;
-            margin-bottom: 15px;
-            color: #e4ecff;
-        }
-
-        .modal-warning {
-            font-size: 12px;
-            color: #ffd37a;
-            margin-bottom: 5px;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .modal-btn {
-            padding: 8px 16px;
-            border-radius: 10px;
+        .primary-btn,
+        .blue-btn,
+        .green-btn,
+        .danger-btn {
+            width: 100%;
             border: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.25s;
-            width: auto;
-            margin-top: 0;
-        }
-
-        .modal-btn.cancel {
-            background: rgba(255,255,255,0.12);
-            color: #f0f4ff;
-        }
-        .modal-btn.cancel:hover {
-            background: rgba(255,255,255,0.25);
-        }
-
-        .modal-btn.confirm {
-            background: #cc0000;
+            border-radius: 15px;
+            padding: 14px 16px;
             color: white;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            transition: 0.2s ease;
         }
-        .modal-btn.confirm:hover {
-            background: #ff3333;
+
+        .primary-btn {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .blue-btn {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        }
+
+        .green-btn {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .danger-btn {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+        }
+
+        .primary-btn:hover,
+        .blue-btn:hover,
+        .green-btn:hover,
+        .danger-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
         }
 
         .divider {
             height: 1px;
-            background: rgba(255,255,255,0.15);
-            margin: 22px 0;
-            border-radius: 10px;
+            background: rgba(255,255,255,0.13);
+            margin: 24px 0;
         }
 
-        @media (max-width: 640px) {
-            .card,
-            .chart-card {
-                width: 92%;
-                padding: 20px;
+        .admin-name {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 13px 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            color: #dbeafe;
+            font-size: 14px;
+        }
+
+        .quick-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .quick-item {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 15px;
+            border-radius: 18px;
+        }
+
+        .quick-item b {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .quick-item small {
+            color: #b8c7e8;
+            line-height: 1.5;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .modal-container {
+            width: 390px;
+            max-width: 100%;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .modal-warning {
+            color: #fde68a;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .modal-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .modal-btn.confirm {
+            background: #dc2626;
+        }
+
+        @media (max-width: 980px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            button,
-            .user-list-btn,
-            .delete-inactive-btn {
-                width: 100%;
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 16px;
             }
 
-            input {
-                width: 100%;
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .modal-container {
-                width: 90%;
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .brand h1 {
+                font-size: 25px;
             }
         }
     </style>
 </head>
 
 <body>
+    <div class="dashboard">
 
-    <div class="card">
-        <h2>VistaQR Yönetici Paneli</h2>
-
-        <div class="stats-box">
-            <p>Toplam QR: {{ total_qr }}</p>
-            <p>Aktif: {{ active_qr }}</p>
-            <p>İnaktif: {{ inactive_qr }}</p>
-        </div>
-
-        {% if message %}
-            <div style="
-                background: rgba(255,255,255,0.25);
-                padding: 12px;
-                border-radius: 10px;
-                margin: 15px 0;
-                font-size: 14px;
-                font-weight: 500;
-                color: #fff;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            ">
-                {{ message }}
+        <div class="topbar">
+            <div class="brand">
+                <h1>VistaQR Yönetici Paneli</h1>
+                <p>QR üretimi, kullanıcı yönetimi ve sistem kontrolleri</p>
             </div>
-        {% endif %}
 
-        <form method="POST">
-            <input type="number" name="adet" placeholder="Kaç adet QR oluşturmak istersiniz?" min="1" required>
-            <button type="submit">QR Oluştur ve ZIP İndir</button>
-        </form>
-
-        <a href="{{ url_for('admin_users') }}" class="user-list-btn">📋 Kullanıcı Listesini Görüntüle</a>
-
-        <button type="button" class="delete-inactive-btn" onclick="openDeleteModal()">🗑 İnaktif QR Kodlarını Temizle</button>
-
-        <form id="deleteInactiveForm" method="POST" action="{{ url_for('delete_inactive_qrs') }}" style="display:none;">
-            <input type="hidden" name="admin_password" id="adminPasswordHidden">
-            <input type="hidden" name="confirm_delete" value="1">
-        </form>
-
-        <div class="divider"></div>
-
-        <div class="section-title">Admin Giriş Bilgilerini Güncelle</div>
-        <div class="section-subtext">
-            Buradan yönetici kullanıcı adını ve şifresini değiştirebilirsiniz.
-            Şifre değiştirmek istemiyorsanız yeni şifre alanlarını boş bırakın.
+            <a href="{{ url_for('admin_logout') }}" class="logout-btn">Çıkış Yap</a>
         </div>
 
-        <div class="current-admin-box">
-            Mevcut admin kullanıcı adı: <b>{{ admin_username or "admin" }}</b>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span>Toplam QR</span>
+                <strong>{{ total_qr }}</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Aktif QR</span>
+                <strong>{{ active_qr }}</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>İnaktif QR</span>
+                <strong>{{ inactive_qr }}</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Boş QR</span>
+                <strong>{{ empty_qr|default(inactive_qr) }}</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Toplam Kullanıcı</span>
+                <strong>{{ total_users|default(0) }}</strong>
+            </div>
         </div>
 
-        <form method="POST" action="{{ url_for('change_admin_credentials') }}">
-            <input type="password" name="current_password" placeholder="Mevcut admin şifresi" required>
-            <input type="text" name="new_username" placeholder="Yeni admin kullanıcı adı" value="{{ admin_username or '' }}" required>
-            <input type="password" name="new_password" placeholder="Yeni şifre (değişmeyecekse boş bırak)">
-            <input type="password" name="confirm_password" placeholder="Yeni şifre tekrar">
-            <button type="submit" class="update-admin-btn">🔐 Admin Bilgilerini Güncelle</button>
-        </form>
+        <div class="main-grid">
 
-        <div class="logout">
-            <a href="{{ url_for('admin_logout') }}">Çıkış Yap</a>
+            <div class="panel-card">
+                <h2>QR Oluştur</h2>
+                <p class="muted">
+                    Buradan toplu QR oluşturup ZIP olarak indirebilirsin. Oluşturulan QR’lar önce sahipsiz ve inaktif gelir.
+                </p>
+
+                {% if message %}
+                    <div class="message">{{ message }}</div>
+                {% endif %}
+
+                <form method="POST">
+                    <input type="number" name="adet" placeholder="Kaç adet QR oluşturmak istersiniz?" min="1" required>
+                    <button type="submit" class="primary-btn">QR Oluştur ve ZIP İndir</button>
+                </form>
+
+                <div class="divider"></div>
+
+                <h2>Hızlı İşlemler</h2>
+                <p class="muted">
+                    Kullanıcı kayıtlarını görüntüleyebilir, sahipsiz inaktif QR kayıtlarını temizleyebilirsin.
+                </p>
+
+                <a href="{{ url_for('admin_users') }}" class="blue-btn">Kullanıcı Listesini Görüntüle</a>
+
+                <button type="button" class="danger-btn" onclick="openDeleteModal()">
+                    Sahipsiz İnaktif QR Kodlarını Temizle
+                </button>
+
+                <form id="deleteInactiveForm" method="POST" action="{{ url_for('delete_inactive_qrs') }}" style="display:none;">
+                    <input type="hidden" name="admin_password" id="adminPasswordHidden">
+                    <input type="hidden" name="confirm_delete" value="1">
+                </form>
+            </div>
+
+            <div class="panel-card">
+                <h2>Admin Bilgileri</h2>
+                <p class="muted">
+                    Yönetici kullanıcı adını ve şifresini buradan güncelleyebilirsin.
+                    Şifre değiştirmek istemiyorsan yeni şifre alanlarını boş bırak.
+                </p>
+
+                <div class="admin-name">
+                    Mevcut admin kullanıcı adı: <b>{{ admin_username or "admin" }}</b>
+                </div>
+
+                <form method="POST" action="{{ url_for('change_admin_credentials') }}">
+                    <input type="password" name="current_password" placeholder="Mevcut admin şifresi" required>
+                    <input type="text" name="new_username" placeholder="Yeni admin kullanıcı adı" value="{{ admin_username or '' }}" required>
+                    <input type="password" name="new_password" placeholder="Yeni şifre">
+                    <input type="password" name="confirm_password" placeholder="Yeni şifre tekrar">
+                    <button type="submit" class="green-btn">Admin Bilgilerini Güncelle</button>
+                </form>
+
+                <div class="divider"></div>
+
+                <h2>Sistem Özeti</h2>
+
+                <div class="quick-list">
+                    <div class="quick-item">
+                        <b>Aktif QR</b>
+                        <small>Müşteri tarafından sahiplenilmiş ve bilgileri gösterilen QR kayıtları.</small>
+                    </div>
+
+                    <div class="quick-item">
+                        <b>Boş QR</b>
+                        <small>Henüz müşteriye bağlanmamış, aktivasyon için hazır QR kayıtları.</small>
+                    </div>
+
+                    <div class="quick-item">
+                        <b>QR Reset</b>
+                        <small>Bir QR’ın sahipliğini sıfırlama işlemini kullanıcı listesi ekranından yapacağız.</small>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="chart-card">
-        <h3>QR Dağılımı</h3>
-        <canvas id="qrChart"></canvas>
-    </div>
-
-    <!-- MODAL -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-container">
             <div class="modal-title">İnaktif QR Kodlarını Temizle</div>
+
             <div class="modal-text">
-                Bu işlem <b>geri alınamaz</b>.<br>
-                Lütfen devam etmek için <b>şifrenizi</b> girin.
-            </div>
-            <div class="modal-warning">
-                ⚠ Bu işlem şu anda <b>inaktif</b> durumda olan QR kodlarını silecektir.
+                Bu işlem geri alınamaz. Sadece sahipsiz ve inaktif QR kayıtları silinir.
             </div>
 
-            <label style="font-size:13px;">Yönetici Şifresi</label>
-            <input type="password" id="adminPasswordInput" class="modal-input" placeholder="Şifrenizi girin">
+            <div class="modal-warning">
+                Devam etmek için yönetici şifreni gir.
+            </div>
+
+            <input type="password" id="adminPasswordInput" placeholder="Yönetici şifresi">
 
             <div class="modal-actions">
                 <button type="button" class="modal-btn cancel" onclick="closeDeleteModal()">Vazgeç</button>
@@ -356,31 +460,11 @@
     </div>
 
     <script>
-        var ctx = document.getElementById('qrChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Aktif', 'İnaktif'],
-                datasets: [{
-                    data: [{{ active_qr }}, {{ inactive_qr }}],
-                    backgroundColor: ['#3CB371', '#FF6F6F'],
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
-                }
-            }
-        });
-
         function openDeleteModal() {
             document.getElementById('deleteModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+            setTimeout(function() {
+                document.getElementById('adminPasswordInput').focus();
+            }, 100);
         }
 
         function closeDeleteModal() {
@@ -390,6 +474,7 @@
 
         function submitDeleteForm() {
             const pass = document.getElementById('adminPasswordInput').value.trim();
+
             if (!pass) {
                 alert("Lütfen şifreyi girin.");
                 return;
@@ -406,6 +491,5 @@
             }
         });
     </script>
-
 </body>
 </html>

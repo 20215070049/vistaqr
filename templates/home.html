@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,140 +7,447 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #d7a84a;
+      --gold-soft: #f0c46a;
+      --navy: #010916;
+      --navy-2: #02193d;
+      --text-soft: rgba(255,255,255,0.78);
+    }
+
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at center, #0059b3, #003064 70%);
-      color: #ffffff;
+      color: white;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 20%),
+        linear-gradient(135deg, #010916 0%, #02193d 48%, #03112a 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background:
+        radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+        radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+        radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+        radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+      background-size: 240px 240px;
+      opacity: .8;
+    }
+
+    body::after {
+      background:
+        linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+        linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+      opacity: .55;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      animation: fadeIn 1s ease;
+      padding: 28px 18px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .topbar {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
     }
 
     .lang-switch {
-      position: absolute;
-      top: 30px;
-      right: 40px;
-      color: white;
-      font-weight: 600;
-      font-size: 15px;
-      opacity: 0.9;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 6px;
+      backdrop-filter: blur(10px);
     }
 
     .lang-switch a {
-      color: white;
       text-decoration: none;
-      margin: 0 4px;
-      transition: 0.3s;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 999px;
+      opacity: 0.78;
+      transition: 0.25s ease;
     }
 
-    .lang-switch a:hover {
+    .lang-switch a.active {
       opacity: 1;
+      color: #fff3c4;
+      background: linear-gradient(135deg, rgba(240,196,106,0.22), rgba(215,168,74,0.12));
+      border: 1px solid rgba(240,196,106,0.3);
     }
 
-    h1 {
-      font-size: 54px;
-      font-weight: 700;
-      color: #4fd3ff;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      text-shadow: 0 0 20px rgba(79,211,255,0.4);
+    .hero {
+      flex: 1;
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 35px 0;
+    }
+
+    .hero-card {
+      width: 100%;
+      padding: 44px 34px 38px;
+      border-radius: 34px;
+      background: linear-gradient(180deg, rgba(8,30,70,0.78), rgba(2,15,40,0.90));
+      border: 1.5px solid rgba(215,168,74,0.42);
+      box-shadow:
+        0 22px 80px rgba(0,0,0,0.42),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+    }
+
+    .logo {
+      width: 158px;
+      max-width: 45vw;
+      display: block;
+      margin: 0 auto 12px;
+    }
+
+    .system-name {
+      color: var(--gold-soft);
+      letter-spacing: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 34px;
+    }
+
+    .title {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      line-height: 1.08;
+    }
+
+    .title span {
+      display: block;
+    }
+
+    .title .top {
+      font-size: 55px;
+      color: #f8f5ef;
+    }
+
+    .title .bottom {
+      font-size: 62px;
+      color: var(--gold-soft);
+    }
+
+    .separator {
+      color: var(--gold-soft);
+      margin: 14px 0 18px;
+      letter-spacing: 4px;
+      font-size: 18px;
     }
 
     .subtitle {
-      font-size: 20px;
-      color: #e6efff;
-      max-width: 600px;
-      margin-bottom: 45px;
-      opacity: 0.85;
-      line-height: 1.5;
+      max-width: 670px;
+      margin: 0 auto 34px;
+      color: var(--text-soft);
+      font-size: 18px;
+      line-height: 1.7;
     }
 
     .buttons {
       display: flex;
-      gap: 22px;
-      flex-wrap: wrap;
       justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .btn {
-      padding: 14px 32px;
-      border-radius: 18px;
-      font-size: 17px;
-      font-weight: 500;
+      min-width: 200px;
+      padding: 15px 26px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
       text-decoration: none;
-      color: white;
-      backdrop-filter: blur(12px);
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.28);
-      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-      transition: all 0.25s ease-in-out;
+      transition: 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      color: #1d1a12;
+      background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,0.30),
+        inset 0 1px 0 rgba(255,255,255,0.45);
+    }
+
+    .btn-secondary {
+      color: #fff3c4;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(240,196,106,0.35);
     }
 
     .btn:hover {
-      background: rgba(255,255,255,0.22);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .features {
+      max-width: 920px;
+      margin: 0 auto 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 26px;
+      background: rgba(2,12,31,0.70);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .feature {
+      padding: 22px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      text-align: left;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .feature:last-child {
+      border-right: none;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(240,196,106,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-soft);
+      font-size: 21px;
+    }
+
+    .feature-title {
+      color: var(--gold-soft);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .feature-desc {
+      color: rgba(255,255,255,0.78);
+      font-size: 13px;
+      line-height: 1.5;
     }
 
     footer {
-      position: absolute;
-      bottom: 25px;
-      font-size: 14px;
-      color: #bcdcff;
-      opacity: 0.85;
+      text-align: center;
+      color: rgba(255,255,255,0.76);
+      font-size: 13px;
+      padding-bottom: 2px;
     }
 
-    @media(max-width: 600px) {
-      h1 { font-size: 40px; }
-      .subtitle { font-size: 16px; padding: 0 20px; }
-      .btn { width: 80%; text-align: center; }
+    @media(max-width: 768px) {
+      .page {
+        padding: 18px 14px;
+      }
+
+      .topbar {
+        justify-content: center;
+      }
+
+      .hero {
+        padding: 26px 0;
+      }
+
+      .hero-card {
+        padding: 30px 18px;
+        border-radius: 26px;
+      }
+
+      .system-name {
+        letter-spacing: 2.6px;
+        font-size: 12px;
+        margin-bottom: 24px;
+      }
+
+      .title .top {
+        font-size: 38px;
+      }
+
+      .title .bottom {
+        font-size: 42px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+      }
+
+      .btn {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .feature {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .feature:last-child {
+        border-bottom: none;
+      }
     }
   </style>
 </head>
 
 <body>
+  <div class="page">
 
-  <div class="lang-switch">
-    <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
-    <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+    <div class="topbar">
+      <div class="lang-switch">
+        <a href="{{ url_for('set_language', lang_code='tr') }}" class="{% if lang == 'tr' %}active{% endif %}">TR</a>
+        <a href="{{ url_for('set_language', lang_code='en') }}" class="{% if lang == 'en' %}active{% endif %}">EN</a>
+      </div>
+    </div>
+
+    <main class="hero">
+      <section class="hero-card">
+        <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" alt="Vista QR Logo" class="logo">
+
+        <div class="system-name">
+          {% if lang == 'en' %}
+            QR KEYCHAIN SYSTEM
+          {% else %}
+            QR ANAHTARLIK SİSTEMİ
+          {% endif %}
+        </div>
+
+        <h1 class="title">
+          {% if lang == 'en' %}
+            <span class="top">Protect What</span>
+            <span class="bottom">Matters</span>
+          {% else %}
+            <span class="top">Eşyalarınızı</span>
+            <span class="bottom">Güvende Tutun</span>
+          {% endif %}
+        </h1>
+
+        <div class="separator">◇</div>
+
+        <p class="subtitle">
+          {% if lang == 'en' %}
+            If your belongings are lost, VistaQR helps the finder contact you quickly and securely.
+          {% else %}
+            Artık kaybolan materyalleriniz size dönmek için akıllı bir yol haritasına sahip!
+          {% endif %}
+        </p>
+
+        <div class="buttons">
+          <a href="{{ url_for('user_login') }}" class="btn btn-primary">
+            <i class="fa-solid fa-user-shield"></i>
+            {% if lang == 'en' %}User Login{% else %}Kullanıcı Girişi{% endif %}
+          </a>
+
+          <a href="{{ url_for('about') }}" class="btn btn-secondary">
+            <i class="fa-regular fa-circle-question"></i>
+            {% if lang == 'en' %}About VistaQR{% else %}Hakkımızda{% endif %}
+          </a>
+
+          <a href="{{ url_for('how_it_works') }}" class="btn btn-secondary">
+            <i class="fa-solid fa-circle-play"></i>
+            {% if lang == 'en' %}How It Works{% else %}Ne İşe Yarar?{% endif %}
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <section class="features">
+      <div class="feature">
+        <div class="feature-icon"><i class="fa-regular fa-shield"></i></div>
+        <div>
+          <div class="feature-title">{% if lang == 'en' %}SECURE{% else %}GÜVENLİ{% endif %}</div>
+          <div class="feature-desc">
+            {% if lang == 'en' %}
+              Your contact details are shown only through your activated QR profile.
+            {% else %}
+              İletişim bilgileriniz yalnızca aktive edilmiş QR profiliniz üzerinden gösterilir.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+          <div class="feature-title">{% if lang == 'en' %}FAST{% else %}HIZLI{% endif %}</div>
+          <div class="feature-desc">
+            {% if lang == 'en' %}
+              The finder can reach you in seconds by scanning the QR code.
+            {% else %}
+              QR kod okutulduğunda bulan kişi size saniyeler içinde ulaşabilir.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon"><i class="fa-regular fa-gem"></i></div>
+        <div>
+          <div class="feature-title">{% if lang == 'en' %}EASY{% else %}KOLAY{% endif %}</div>
+          <div class="feature-desc">
+            {% if lang == 'en' %}
+              Activate your keychain once and manage your information anytime.
+            {% else %}
+              Anahtarlığınızı bir kez aktive edin, bilgilerinizi dilediğiniz zaman yönetin.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2025 VistaQR —
+      {% if lang == 'en' %}All rights reserved.{% else %}Tüm hakları saklıdır.{% endif %}
+    </footer>
+
   </div>
-
-  <h1>VistaQR</h1>
-
-  <p class="subtitle">
-    {% if lang == 'tr' %}
-      Eşyalarınızı kaybetseniz bile, bulan kişinin size ulaşmasının en akıllı yolu.
-    {% else %}
-      Even if you lose your belongings, the smartest way for the finder to reach you.
-    {% endif %}
-  </p>
-
-  <div class="buttons">
-    <a href="{{ url_for('user_login') }}" class="btn">
-      {% if lang == 'tr' %}Kullanıcı Girişi{% else %}User Login{% endif %}
-    </a>
-
-    <a href="{{ url_for('about') }}" class="btn">
-      {% if lang == 'tr' %}Hakkımızda{% else %}About{% endif %}
-    </a>
-  </div>
-
-  <footer>
-    © 2025 VistaQR — {% if lang == 'tr' %}Tüm hakları saklıdır.{% else %}All rights reserved.{% endif %}
-  </footer>
-
 </body>
 </html>

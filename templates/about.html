@@ -1,308 +1,602 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        {% if lang == 'en' %}
-            VistaQR – About Us
-        {% else %}
-            VistaQR – Hakkımızda
-        {% endif %}
-    </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if lang == 'en' %}About Us | VistaQR{% else %}Hakkımızda | VistaQR{% endif %}</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #002b62, #003d85);
-            color: white;
-            overflow-x: hidden;
-        }
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container {
-            width: 90%;
-            max-width: 1500px;
-            margin: 0 auto;
-            padding-top: 60px;
-        }
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(240,196,106,.14), transparent 22%),
+        linear-gradient(135deg, #020817 0%, #04142f 55%, #010711 100%);
+      padding: 22px;
+    }
 
-        .lang-switch {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-weight: 600;
-            z-index: 10;
-        }
+    .shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      min-height: calc(100vh - 44px);
+      border: 1px solid rgba(240,196,106,.22);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 72% 35%, rgba(240,196,106,.11), transparent 30%),
+        linear-gradient(180deg, rgba(7,22,50,.92), rgba(2,10,25,.96));
+      box-shadow: 0 24px 80px rgba(0,0,0,.45);
+      overflow: hidden;
+      position: relative;
+    }
 
-        .lang-switch a {
-            color: white;
-            text-decoration: none;
-            margin: 0 4px;
-            transition: 0.3s;
-        }
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 78% 42%, rgba(22, 111, 255, .16), transparent 26%),
+        linear-gradient(115deg, transparent 0%, transparent 45%, rgba(215,168,74,.10) 46%, transparent 47%);
+      pointer-events: none;
+    }
 
-        .lang-switch a:hover {
-            text-decoration: underline;
-        }
+    .nav,
+    .hero,
+    .stats,
+    .bottom-note {
+      position: relative;
+      z-index: 1;
+    }
 
-        h1 {
-            font-size: 48px;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 25px;
-        }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 26px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
 
-        p {
-            font-size: 20px;
-            line-height: 1.6;
-            max-width: 650px;
-        }
+    .logo { width: 132px; }
 
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin: 35px 0;
-        }
+    .links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+    }
 
-        .tag {
-            background: rgba(255,255,255,0.12);
-            padding: 12px 22px;
-            border-radius: 16px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-        }
+    .links a {
+      color: rgba(255,255,255,.75);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
 
-        .hero-img {
-            position: absolute;
-            top: 90px;
-            right: 120px;
-            width: 440px;
-            transform: rotate(-3deg);
-            filter: drop-shadow(0px 20px 40px rgba(0,0,0,0.45));
-        }
+    .links a.active { color: #f0c46a; }
 
-        .section-title {
-            margin-top: 150px;
-            text-align: center;
-            font-size: 38px;
-            font-weight: 700;
-        }
+    .lang a {
+      color: white;
+      text-decoration: none;
+      font-size: 12px;
+      margin-left: 8px;
+      opacity: .75;
+    }
 
-        .section-text {
-            margin: 25px auto;
-            font-size: 20px;
-            max-width: 900px;
-            text-align: center;
-            line-height: 1.7;
-        }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px;
+      align-items: center;
+      padding: 40px 48px 28px;
+    }
 
-        .features {
-            margin-top: 70px;
-            display: flex;
-            justify-content: center;
-            gap: 35px;
-            flex-wrap: wrap;
-        }
+    h1 {
+      font-size: 42px;
+      margin-bottom: 16px;
+    }
 
-        .card {
-            background: rgba(255,255,255,0.13);
-            padding: 25px;
-            border-radius: 22px;
-            width: 340px;
-            backdrop-filter: blur(12px);
-        }
+    .desc {
+      color: rgba(255,255,255,.72);
+      line-height: 1.7;
+      max-width: 440px;
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
 
-        .card h3 {
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
+    .checks {
+      display: grid;
+      gap: 12px;
+    }
 
-        .card p {
-            font-size: 15px;
-            line-height: 1.5;
-        }
+    .check {
+      color: rgba(255,255,255,.82);
+      font-size: 14px;
+    }
 
-        @media(max-width: 992px) {
-            .hero-img {
-                position: relative;
-                margin: 60px auto;
-                left: 0;
-                right: 0;
-                display: block;
-                width: 330px;
-                transform: rotate(0deg);
-                top: 0;
-            }
+    .check i {
+      color: #f0c46a;
+      margin-right: 9px;
+    }
 
-            h1 {
-                font-size: 36px;
-            }
+    .visual {
+      position: relative;
+      min-height: 370px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      isolation: isolate;
+    }
 
-            p {
-                font-size: 18px;
-            }
+    .orbit-wrap {
+      position: relative;
+      width: 360px;
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-            .section-title {
-                font-size: 32px;
-            }
+    .orbit-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      background:
+        conic-gradient(
+          from 20deg,
+          transparent 0deg,
+          rgba(240,196,106,.60) 18deg,
+          transparent 34deg,
+          transparent 92deg,
+          rgba(54,143,255,.55) 115deg,
+          transparent 135deg,
+          transparent 220deg,
+          rgba(240,196,106,.45) 250deg,
+          transparent 270deg,
+          transparent 360deg
+        );
+      filter: blur(.2px);
+      opacity: .75;
+      animation: spinSlow 18s linear infinite;
+      z-index: -2;
+    }
 
-            .section-text {
-                font-size: 18px;
-            }
+    .orbit {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(240,196,106,.25);
+      box-shadow:
+        inset 0 0 34px rgba(240,196,106,.05),
+        0 0 36px rgba(35,102,255,.14);
+    }
 
-            .lang-switch {
-                top: 14px;
-                right: 18px;
-            }
-        }
-    </style>
+    .orbit.one {
+      width: 338px;
+      height: 338px;
+      border-style: solid;
+    }
+
+    .orbit.two {
+      width: 282px;
+      height: 282px;
+      border-style: dashed;
+      border-color: rgba(240,196,106,.25);
+      animation: spinReverse 28s linear infinite;
+    }
+
+    .orbit.three {
+      width: 220px;
+      height: 220px;
+      border-color: rgba(48,126,255,.30);
+      box-shadow: 0 0 38px rgba(48,126,255,.20);
+    }
+
+    .orbit.four {
+      width: 168px;
+      height: 168px;
+      border-color: rgba(240,196,106,.18);
+    }
+
+    .blue-wave {
+      position: absolute;
+      width: 430px;
+      height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(90deg, transparent, rgba(38,121,255,.32), transparent);
+      filter: blur(18px);
+      transform: rotate(-18deg);
+      z-index: -3;
+    }
+
+    .shield {
+      position: relative;
+      width: 155px;
+      height: 185px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      filter:
+        drop-shadow(0 0 18px rgba(240,196,106,.48))
+        drop-shadow(0 0 42px rgba(240,196,106,.18));
+    }
+
+    .shield::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(240,196,106,.95), rgba(146,91,17,.92));
+      clip-path: polygon(50% 0%, 90% 18%, 82% 76%, 50% 100%, 18% 76%, 10% 18%);
+      z-index: 1;
+    }
+
+    .shield::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      background: linear-gradient(180deg, rgba(7,22,50,.98), rgba(2,10,25,.98));
+      clip-path: polygon(50% 0%, 90% 18%, 82% 76%, 50% 100%, 18% 76%, 10% 18%);
+      z-index: 2;
+    }
+
+    .vista-mark {
+      position: relative;
+      z-index: 3;
+      width: 76px;
+      height: 76px;
+      filter: drop-shadow(0 0 14px rgba(240,196,106,.5));
+    }
+
+    .vista-mark::before,
+    .vista-mark::after,
+    .vista-mark span {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-left: 9px solid #f0c46a;
+      border-bottom: 9px solid #f0c46a;
+      transform: rotate(-45deg);
+      transform-origin: center;
+    }
+
+    .vista-mark::before {
+      width: 76px;
+      height: 76px;
+      left: 0;
+      top: -4px;
+    }
+
+    .vista-mark::after {
+      width: 50px;
+      height: 50px;
+      left: 13px;
+      top: 9px;
+      opacity: .95;
+    }
+
+    .vista-mark span {
+      width: 24px;
+      height: 24px;
+      left: 26px;
+      top: 22px;
+      opacity: .9;
+    }
+
+    .bubble {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,196,106,.70);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f0c46a;
+      background: radial-gradient(circle at 30% 20%, rgba(240,196,106,.18), rgba(6,18,42,.96));
+      box-shadow:
+        0 0 22px rgba(240,196,106,.20),
+        inset 0 0 12px rgba(240,196,106,.08);
+      z-index: 5;
+      font-size: 18px;
+    }
+
+    .b1 { top: 18px; right: 88px; }
+    .b2 { bottom: 72px; left: 48px; }
+    .b3 { right: 10px; top: 150px; }
+    .b4 { left: 22px; top: 92px; }
+
+    .spark {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: #f0c46a;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #f0c46a;
+      z-index: 6;
+    }
+
+    .s1 { top: 62px; left: 120px; }
+    .s2 { bottom: 82px; right: 92px; }
+    .s3 { top: 118px; right: 68px; background: #4da3ff; box-shadow: 0 0 12px #4da3ff; }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    .stats {
+      margin: 0 48px 34px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid rgba(240,196,106,.22);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,.035);
+    }
+
+    .stat {
+      padding: 20px;
+      border-right: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      gap: 13px;
+      align-items: center;
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat i {
+      color: #f0c46a;
+      font-size: 22px;
+    }
+
+    .stat strong {
+      color: #f0c46a;
+      font-size: 23px;
+      display: block;
+    }
+
+    .stat span {
+      color: rgba(255,255,255,.70);
+      font-size: 12px;
+    }
+
+    .bottom-note {
+      border-top: 1px solid rgba(255,255,255,.06);
+      text-align: center;
+      padding: 22px;
+      color: rgba(255,255,255,.76);
+      font-size: 14px;
+    }
+
+    .bottom-note i {
+      color: #f0c46a;
+      margin-right: 8px;
+    }
+
+    @media(max-width: 850px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 30px 22px;
+      }
+
+      .visual {
+        order: -1;
+        min-height: 310px;
+      }
+
+      .orbit-wrap {
+        width: 300px;
+        height: 300px;
+      }
+
+      .orbit.one { width: 284px; height: 284px; }
+      .orbit.two { width: 238px; height: 238px; }
+      .orbit.three { width: 188px; height: 188px; }
+      .orbit.four { width: 142px; height: 142px; }
+
+      .shield {
+        width: 126px;
+        height: 152px;
+      }
+
+      .vista-mark {
+        width: 60px;
+        height: 60px;
+      }
+
+      .vista-mark::before {
+        width: 60px;
+        height: 60px;
+        border-left-width: 7px;
+        border-bottom-width: 7px;
+      }
+
+      .vista-mark::after {
+        width: 40px;
+        height: 40px;
+        left: 10px;
+        top: 7px;
+        border-left-width: 7px;
+        border-bottom-width: 7px;
+      }
+
+      .vista-mark span {
+        width: 20px;
+        height: 20px;
+        left: 20px;
+        top: 18px;
+        border-left-width: 7px;
+        border-bottom-width: 7px;
+      }
+
+      .bubble {
+        width: 45px;
+        height: 45px;
+        font-size: 15px;
+      }
+
+      .b1 { top: 16px; right: 70px; }
+      .b2 { bottom: 62px; left: 35px; }
+      .b3 { right: 4px; top: 125px; }
+      .b4 { left: 8px; top: 80px; }
+
+      .stats {
+        margin: 0 22px 26px;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat:nth-child(2) { border-right: none; }
+
+      h1 { font-size: 34px; }
+
+      .links { display: none; }
+    }
+
+    @media(max-width: 520px) {
+      body { padding: 12px; }
+
+      .nav { padding: 16px; }
+
+      .logo { width: 116px; }
+
+      .stats { grid-template-columns: 1fr; }
+
+      .stat {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+
+      .stat:last-child { border-bottom: none; }
+
+      .orbit-wrap {
+        width: 270px;
+        height: 270px;
+      }
+
+      .orbit.one { width: 258px; height: 258px; }
+      .orbit.two { width: 216px; height: 216px; }
+      .orbit.three { width: 170px; height: 170px; }
+      .orbit.four { width: 130px; height: 130px; }
+
+      .blue-wave {
+        width: 320px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="shell">
 
-    <div class="lang-switch">
-        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a> /
+    <div class="nav">
+      <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}" class="logo" alt="VistaQR">
+
+      <div class="links">
+        <a href="{{ url_for('home') }}">{% if lang == 'en' %}Home{% else %}Ana Sayfa{% endif %}</a>
+        <a href="{{ url_for('about') }}" class="active">{% if lang == 'en' %}About{% else %}Hakkımızda{% endif %}</a>
+        <a href="{{ url_for('user_login') }}">{% if lang == 'en' %}Login{% else %}Giriş{% endif %}</a>
+        <a href="https://www.instagram.com/vistaqr1/" target="_blank">Instagram</a>
+      </div>
+
+      <div class="lang">
+        <a href="{{ url_for('set_language', lang_code='tr') }}">TR</a>
         <a href="{{ url_for('set_language', lang_code='en') }}">EN</a>
+      </div>
     </div>
 
-    <div class="container">
+    <section class="hero">
+      <div>
+        <h1>{% if lang == 'en' %}About Us{% else %}Hakkımızda{% endif %}</h1>
 
-        <h1>
-            {% if lang == 'en' %}
-                Feel Safe with<br>VistaQR Technology
-            {% else %}
-                VistaQR Teknolojisi ile<br>Güvendesiniz
-            {% endif %}
-        </h1>
-
-        <p>
-            {% if lang == 'en' %}
-                Experience the smart power of technology while enjoying the peace of mind of knowing your belongings are protected.
-                VistaQR allows the person who finds your lost keys to contact you within seconds.
-            {% else %}
-                Eşyanızın güvende olduğunu bilmenin rahatlığını yaşarken teknolojinin akıllı gücünü deneyimleyin.
-                VistaQR, kaybolan anahtarlarınızı bulan kişinin size saniyeler içinde ulaşmasını sağlar.
-            {% endif %}
+        <p class="desc">
+          {% if lang == 'en' %}
+            VistaQR is a new-generation QR keychain system that combines technology and security, helping found belongings return to their owners quickly and easily.
+          {% else %}
+            VistaQR, kaybolan eşyaların size ulaşmasını kolaylaştırmak için teknoloji ve güvenliği bir araya getiren yeni nesil bir QR anahtarlık sistemidir.
+          {% endif %}
         </p>
 
-        <div class="tag-list">
-            <div class="tag">
-                {% if lang == 'en' %}
-                    🔒 End-to-end security
-                {% else %}
-                    🔒 End-to-end güvenlik
-                {% endif %}
-            </div>
-            <div class="tag">
-                {% if lang == 'en' %}
-                    🔐 Encrypted communication
-                {% else %}
-                    🔐 Şifreli iletişim
-                {% endif %}
-            </div>
-            <div class="tag">
-                {% if lang == 'en' %}
-                    ✨ User-friendly design
-                {% else %}
-                    ✨ Kullanıcı dostu tasarım
-                {% endif %}
-            </div>
-            <div class="tag">
-                {% if lang == 'en' %}
-                    🌍 Global compatibility
-                {% else %}
-                    🌍 Global uyum
-                {% endif %}
-            </div>
+        <div class="checks">
+          <div class="check"><i class="fa-regular fa-circle-check"></i>{% if lang == 'en' %}Secure contact infrastructure{% else %}Güvenli iletişim altyapısı{% endif %}</div>
+          <div class="check"><i class="fa-regular fa-circle-check"></i>{% if lang == 'en' %}Fast and easy notification system{% else %}Hızlı ve kolay bildirim sistemi{% endif %}</div>
+          <div class="check"><i class="fa-regular fa-circle-check"></i>{% if lang == 'en' %}User-friendly interface{% else %}Kullanıcı dostu arayüz{% endif %}</div>
+          <div class="check"><i class="fa-regular fa-circle-check"></i>{% if lang == 'en' %}Mobile-first experience{% else %}Mobil öncelikli deneyim{% endif %}</div>
         </div>
+      </div>
 
-        <img src="{{ url_for('static', filename='img/anahtar_telefon.png') }}"
-             class="hero-img"
-             alt="VistaQR Device and Keychain">
+      <div class="visual">
+        <div class="blue-wave"></div>
 
-        <h2 class="section-title">
-            {% if lang == 'en' %}
-                Who Are We?
-            {% else %}
-                Biz Kimiz?
-            {% endif %}
-        </h2>
+        <div class="orbit-wrap">
+          <div class="orbit one"></div>
+          <div class="orbit two"></div>
+          <div class="orbit three"></div>
+          <div class="orbit four"></div>
 
-        <p class="section-text">
-            {% if lang == 'en' %}
-                VistaQR is an innovative initiative that uses technology to make everyday life easier for people.
-                Our goal is to reconnect lost belongings with their owners within seconds, in a secure and effortless way.
-            {% else %}
-                VistaQR, teknolojiyi insanların günlük hayatını kolaylaştırmak için kullanan yenilikçi bir girişimdir.
-                Amacımız, kaybolan eşyalar ile sahiplerini saniyeler içinde, güvenli ve zahmetsiz bir şekilde buluşturmaktır.
-            {% endif %}
-        </p>
+          <div class="spark s1"></div>
+          <div class="spark s2"></div>
+          <div class="spark s3"></div>
 
-        <div class="features">
-            <div class="card">
-                <h3>
-                    {% if lang == 'en' %}
-                        🔐 Secure Infrastructure
-                    {% else %}
-                        🔐 Güvenli Altyapı
-                    {% endif %}
-                </h3>
-                <p>
-                    {% if lang == 'en' %}
-                        User data is protected with strong encryption methods. VistaQR puts security at the center.
-                    {% else %}
-                        Kullanıcı verileri güçlü şifreleme yöntemleriyle korunur. VistaQR güvenliği merkeze alır.
-                    {% endif %}
-                </p>
-            </div>
+          <div class="bubble b1"><i class="fa-regular fa-user"></i></div>
+          <div class="bubble b2"><i class="fa-solid fa-bolt"></i></div>
+          <div class="bubble b3"><i class="fa-solid fa-globe"></i></div>
+          <div class="bubble b4"><i class="fa-solid fa-lock"></i></div>
 
-            <div class="card">
-                <h3>
-                    {% if lang == 'en' %}
-                        ⚡ Fast Activation
-                    {% else %}
-                        ⚡ Hızlı Aktivasyon
-                    {% endif %}
-                </h3>
-                <p>
-                    {% if lang == 'en' %}
-                        You can activate your QR code in just a few steps and make it ready to use within seconds.
-                    {% else %}
-                        QR kodunuzu birkaç adımda aktifleştirir, saniyeler içinde kullanıma hazır hale getirirsiniz.
-                    {% endif %}
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>
-                    {% if lang == 'en' %}
-                        🌍 Global Compatibility
-                    {% else %}
-                        🌍 Global Uyum
-                    {% endif %}
-                </h3>
-                <p>
-                    {% if lang == 'en' %}
-                        VistaQR is a solution designed to work worldwide. The finder can contact you through the most suitable communication channel.
-                    {% else %}
-                        VistaQR dünya genelinde çalışan bir çözümdür. Bulan kişi size en uygun iletişim kanalıyla ulaşabilir.
-                    {% endif %}
-                </p>
-            </div>
+          <div class="shield">
+            <div class="vista-mark"><span></span></div>
+          </div>
         </div>
+      </div>
+    </section>
 
+    <section class="stats">
+      <div class="stat">
+        <i class="fa-regular fa-face-smile"></i>
+        <div>
+          <strong>50K+</strong>
+          <span>{% if lang == 'en' %}Happy Users{% else %}Mutlu Kullanıcı{% endif %}</span>
+        </div>
+      </div>
+
+      <div class="stat">
+        <i class="fa-solid fa-qrcode"></i>
+        <div>
+          <strong>100K+</strong>
+          <span>{% if lang == 'en' %}Active QR{% else %}Aktif QR{% endif %}</span>
+        </div>
+      </div>
+
+      <div class="stat">
+        <i class="fa-solid fa-globe"></i>
+        <div>
+          <strong>120+</strong>
+          <span>{% if lang == 'en' %}Countries{% else %}Ülke{% endif %}</span>
+        </div>
+      </div>
+
+      <div class="stat">
+        <i class="fa-regular fa-clock"></i>
+        <div>
+          <strong>7/24</strong>
+          <span>{% if lang == 'en' %}Support{% else %}Destek{% endif %}</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="bottom-note">
+      <i class="fa-solid fa-shield-halved"></i>
+      {% if lang == 'en' %}Your safety is our priority.{% else %}Güvenliğiniz bizim önceliğimizdir.{% endif %}
     </div>
 
+  </div>
 </body>
 </html>

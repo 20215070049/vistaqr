@@ -15,7 +15,14 @@ from datetime import timedelta, datetime
 # ------------------- AYARLAR -------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_URI = os.environ.get("DATABASE_URL", "sqlite:///vistaqr.db")
+LOCAL_SQL_SERVER_URI = (
+    "mssql+pyodbc://@DESKTOP-D2BEU1I\\SQLEXPRESS/vistaqr"
+    "?driver=ODBC+Driver+17+for+SQL+Server"
+    "&trusted_connection=yes"
+)
+
+DB_URI = os.environ.get("DATABASE_URL") or LOCAL_SQL_SERVER_URI
+
 if DB_URI and DB_URI.startswith("postgres://"):
     DB_URI = DB_URI.replace("postgres://", "postgresql://", 1)
 
@@ -24,11 +31,9 @@ QR_OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "qr_codes")
 SECRET_KEY = os.environ.get("SECRET_KEY", "vistaqr-secret-key-2026")
 MAX_QR_BATCH = 500
 
-# İlk kurulum için varsayılan admin bilgileri (sadece ilk admin kaydı yoksa kullanılır)
 DEFAULT_ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "gizli123")
 
-# Admin route gizli
 ADMIN_LOGIN_ROUTE = "/vista-secret-panel-6334"
 ADMIN_PANEL_ROUTE = "/vista-secret-panel-6334/panel"
 ADMIN_USERS_ROUTE = "/vista-secret-panel-6334/users"
@@ -37,13 +42,12 @@ ADMIN_DELETE_INACTIVE_ROUTE = "/vista-secret-panel-6334/delete-inactive"
 ADMIN_DELETE_USER_ROUTE = "/vista-secret-panel-6334/delete-user/<int:user_id>"
 ADMIN_CHANGE_CREDENTIALS_ROUTE = "/vista-secret-panel-6334/change-credentials"
 ADMIN_RELEASE_KEYCHAIN_ROUTE = "/vista-secret-panel-6334/release-keychain/<int:keychain_id>"
+ADMIN_RESET_KEYCHAIN_ROUTE = "/vista-secret-panel-6334/reset-keychain/<int:keychain_id>"
 
-# ------------------- EMAIL / OTP AYARLARI -------------------
 ENABLE_EMAIL_VERIFICATION = False
 ENABLE_SMS_VERIFICATION = False
 VERIFICATION_CODE_TTL_MINUTES = 10
 
-# Brevo API ayarları
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 BREVO_SENDER_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "noreply@vistaqrapp.com")
 BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "VistaQR")
@@ -262,6 +266,28 @@ def get_admin_settings():
     return AdminSettings.query.first()
 
 
+def reset_keychain_record(keychain):
+    keychain.owner_id = None
+    keychain.status = "inactive"
+    keychain.note = None
+
+
+def get_admin_panel_stats():
+    total_qr = Keychain.query.count()
+    active_qr = Keychain.query.filter_by(status="active").count()
+    inactive_qr = Keychain.query.filter_by(status="inactive").count()
+    empty_qr = Keychain.query.filter_by(status="inactive", owner_id=None).count()
+    total_users = User.query.count()
+
+    return {
+        "total_qr": total_qr,
+        "active_qr": active_qr,
+        "inactive_qr": inactive_qr,
+        "empty_qr": empty_qr,
+        "total_users": total_users
+    }
+
+
 # ------------------- EMAIL / OTP -------------------
 def generate_verification_code():
     return str(uuid.uuid4().int)[-6:]
@@ -311,9 +337,7 @@ def send_email_via_smtp(to_email, subject, body_text):
             "name": BREVO_SENDER_NAME,
             "email": BREVO_SENDER_EMAIL
         },
-        "to": [
-            {"email": to_email}
-        ],
+        "to": [{"email": to_email}],
         "subject": subject,
         "textContent": body_text
     }
@@ -321,10 +345,7 @@ def send_email_via_smtp(to_email, subject, body_text):
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=15)
         print("BREVO RESPONSE:", response.status_code, response.text)
-
-        if 200 <= response.status_code < 300:
-            return True
-        return False
+        return 200 <= response.status_code < 300
     except Exception as e:
         print("BREVO ERROR:", repr(e))
         return False
@@ -414,6 +435,11 @@ def about():
     return render_template("about.html", lang=get_lang())
 
 
+@app.route("/how-it-works")
+def how_it_works():
+    return render_template("how_it_works.html", lang=get_lang())
+
+
 # ------------------- ADMIN GİRİŞ -------------------
 @app.route(ADMIN_LOGIN_ROUTE, methods=["GET", "POST"])
 def admin_login():
@@ -458,22 +484,20 @@ def admin_panel():
         try:
             adet = int(adet_raw)
         except ValueError:
+            stats = get_admin_panel_stats()
             return render_template(
                 "admin_panel.html",
-                total_qr=Keychain.query.count(),
-                active_qr=Keychain.query.filter_by(status="active").count(),
-                inactive_qr=Keychain.query.filter_by(status="inactive").count(),
+                **stats,
                 message="❌ Geçerli bir adet giriniz.",
                 lang=get_lang(),
                 admin_username=admin.username if admin else ""
             )
 
         if adet < 1 or adet > MAX_QR_BATCH:
+            stats = get_admin_panel_stats()
             return render_template(
                 "admin_panel.html",
-                total_qr=Keychain.query.count(),
-                active_qr=Keychain.query.filter_by(status="active").count(),
-                inactive_qr=Keychain.query.filter_by(status="inactive").count(),
+                **stats,
                 message=f"❌ Adet 1 ile {MAX_QR_BATCH} arasında olmalıdır.",
                 lang=get_lang(),
                 admin_username=admin.username if admin else ""
@@ -512,25 +536,19 @@ def admin_panel():
 
             print("QR URETIM HATASI =>", repr(e))
 
+            stats = get_admin_panel_stats()
             return render_template(
                 "admin_panel.html",
-                total_qr=Keychain.query.count(),
-                active_qr=Keychain.query.filter_by(status="active").count(),
-                inactive_qr=Keychain.query.filter_by(status="inactive").count(),
+                **stats,
                 message="❌ QR üretimi sırasında bir hata oluştu.",
                 lang=get_lang(),
                 admin_username=admin.username if admin else ""
             )
 
-    total_qr = Keychain.query.count()
-    active_qr = Keychain.query.filter_by(status="active").count()
-    inactive_qr = Keychain.query.filter_by(status="inactive").count()
-
+    stats = get_admin_panel_stats()
     return render_template(
         "admin_panel.html",
-        total_qr=total_qr,
-        active_qr=active_qr,
-        inactive_qr=inactive_qr,
+        **stats,
         message=message,
         lang=get_lang(),
         admin_username=admin.username if admin else ""
@@ -573,7 +591,6 @@ def change_admin_credentials():
             admin.password_hash = generate_password_hash(new_password.strip())
 
         db.session.commit()
-
         return redirect(url_for("admin_panel", message="✅ Admin bilgileri başarıyla güncellendi."))
     except Exception as e:
         db.session.rollback()
@@ -631,7 +648,7 @@ def delete_user(user_id):
     try:
         user_keychains = Keychain.query.filter_by(owner_id=user_id).all()
         for keychain in user_keychains:
-            db.session.delete(keychain)
+            reset_keychain_record(keychain)
 
         db.session.delete(user)
         db.session.commit()
@@ -643,7 +660,7 @@ def delete_user(user_id):
     return redirect(url_for("admin_users"))
 
 
-# ------------------- ADMIN: QR BAĞINI KALDIR / YENİDEN AKTİVE EDİLEBİLİR YAP -------------------
+# ------------------- ADMIN: QR BAĞINI KALDIR -------------------
 @app.route(ADMIN_RELEASE_KEYCHAIN_ROUTE, methods=["POST"])
 @require_admin
 def release_keychain(keychain_id):
@@ -652,18 +669,32 @@ def release_keychain(keychain_id):
     if not keychain:
         return redirect(url_for("admin_users"))
 
-    if not keychain.owner_id:
-        return redirect(url_for("admin_users"))
-
     try:
-        keychain.owner_id = None
-        keychain.status = "inactive"
-        keychain.note = None
+        reset_keychain_record(keychain)
         db.session.commit()
         return redirect(url_for("admin_users"))
     except Exception as e:
         db.session.rollback()
         print("QR BAGLANTISI KALDIRMA HATASI =>", repr(e))
+        return redirect(url_for("admin_users"))
+
+
+# ------------------- ADMIN: QR RESET -------------------
+@app.route(ADMIN_RESET_KEYCHAIN_ROUTE, methods=["POST"])
+@require_admin
+def reset_keychain(keychain_id):
+    keychain = db.session.get(Keychain, keychain_id)
+
+    if not keychain:
+        return redirect(url_for("admin_users"))
+
+    try:
+        reset_keychain_record(keychain)
+        db.session.commit()
+        return redirect(url_for("admin_users"))
+    except Exception as e:
+        db.session.rollback()
+        print("QR RESET HATASI =>", repr(e))
         return redirect(url_for("admin_users"))
 
 
@@ -977,7 +1008,11 @@ def user_login():
                 if len(users) == 1:
                     user = users[0]
                 elif len(users) > 1:
-                    return render_template("user_login.html", error="⚠ Bu telefon numarası birden fazla hesapta kayıtlı. Lütfen e-posta ile giriş yapın.", lang=lang)
+                    return render_template(
+                        "user_login.html",
+                        error="⚠ Bu telefon numarası birden fazla hesapta kayıtlı. Lütfen e-posta ile giriş yapın.",
+                        lang=lang
+                    )
 
         if user and user.password and check_password_hash(user.password, password):
             session.permanent = True
@@ -1008,6 +1043,7 @@ def activate_keychain(qr_code_id):
             owner=owner,
             note=keychain.note,
             whatsapp_url=build_whatsapp_url(owner.phone),
+            qr_code_id=qr_code_id,
             lang=lang
         )
 
@@ -1025,15 +1061,6 @@ def activate_keychain(qr_code_id):
         password = request.form.get("password") or ""
         password_confirm = request.form.get("password_confirm") or ""
         note = sanitize_note(request.form.get("note"))
-
-        print("AKTIVASYON DEBUG =>", {
-            "qr_code_id": qr_code_id,
-            "name": name,
-            "phone": phone,
-            "email": email_input,
-            "password_len": len(password),
-            "note": note
-        })
 
         if not name:
             return render_template("activate.html", qr_code_id=qr_code_id, error="⚠ Ad soyad zorunludur.", lang=lang)
@@ -1088,18 +1115,12 @@ def activate_keychain(qr_code_id):
                 db.session.commit()
                 trigger_optional_verifications(existing_user.email, existing_user.phone)
 
-                print("AKTIVASYON BASARILI => mevcut hesap", {
-                    "user_id": existing_user.id,
-                    "qr_code_id": qr_code_id,
-                    "owner_id": keychain.owner_id,
-                    "status": keychain.status
-                })
-
                 return render_template(
                     "view.html",
                     owner=existing_user,
                     note=note,
                     whatsapp_url=build_whatsapp_url(existing_user.phone),
+                    qr_code_id=qr_code_id,
                     lang=lang
                 )
 
@@ -1125,18 +1146,12 @@ def activate_keychain(qr_code_id):
             db.session.commit()
             trigger_optional_verifications(user.email, user.phone)
 
-            print("AKTIVASYON BASARILI => yeni hesap", {
-                "user_id": user.id,
-                "qr_code_id": qr_code_id,
-                "owner_id": keychain.owner_id,
-                "status": keychain.status
-            })
-
             return render_template(
                 "view.html",
                 owner=user,
                 note=note,
                 whatsapp_url=build_whatsapp_url(user.phone),
+                qr_code_id=qr_code_id,
                 lang=lang
             )
 
@@ -1181,6 +1196,7 @@ def view_keychain(qr_code_id):
         owner=owner,
         note=keychain.note,
         whatsapp_url=build_whatsapp_url(owner.phone),
+        qr_code_id=qr_code_id,
         lang=get_lang()
     )
 
@@ -1207,4 +1223,4 @@ def user_logout():
 if __name__ == "__main__":
     ensure_qr_folder()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)
