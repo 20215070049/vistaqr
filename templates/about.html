@@ -78,6 +78,11 @@
 
     .links a.active { color: #f0c46a; }
 
+    .links a:hover,
+    .lang a:hover {
+      color: #f0c46a;
+    }
+
     .lang a {
       color: white;
       text-decoration: none;
@@ -356,17 +361,20 @@
     .stat i {
       color: #f0c46a;
       font-size: 22px;
+      min-width: 24px;
     }
 
     .stat strong {
       color: #f0c46a;
-      font-size: 23px;
+      font-size: 19px;
       display: block;
+      line-height: 1.25;
     }
 
     .stat span {
       color: rgba(255,255,255,.70);
       font-size: 12px;
+      line-height: 1.35;
     }
 
     .bottom-note {
@@ -503,8 +511,9 @@
       <div class="links">
         <a href="{{ url_for('home') }}">{% if lang == 'en' %}Home{% else %}Ana Sayfa{% endif %}</a>
         <a href="{{ url_for('about') }}" class="active">{% if lang == 'en' %}About{% else %}Hakkımızda{% endif %}</a>
+        <a href="{{ url_for('how_it_works') }}">{% if lang == 'en' %}How It Works{% else %}Ne İşe Yarar{% endif %}</a>
         <a href="{{ url_for('user_login') }}">{% if lang == 'en' %}Login{% else %}Giriş{% endif %}</a>
-        <a href="https://www.instagram.com/vistaqr1/" target="_blank">Instagram</a>
+        <a href="https://www.instagram.com/vistaqr1/" target="_blank" rel="noopener">Instagram</a>
       </div>
 
       <div class="lang">
@@ -560,26 +569,26 @@
 
     <section class="stats">
       <div class="stat">
-        <i class="fa-regular fa-face-smile"></i>
-        <div>
-          <strong>50K+</strong>
-          <span>{% if lang == 'en' %}Happy Users{% else %}Mutlu Kullanıcı{% endif %}</span>
-        </div>
-      </div>
-
-      <div class="stat">
         <i class="fa-solid fa-qrcode"></i>
         <div>
-          <strong>100K+</strong>
-          <span>{% if lang == 'en' %}Active QR{% else %}Aktif QR{% endif %}</span>
+          <strong>{% if lang == 'en' %}Smart QR{% else %}Akıllı QR{% endif %}</strong>
+          <span>{% if lang == 'en' %}Smart QR System{% else %}Akıllı QR Sistemi{% endif %}</span>
         </div>
       </div>
 
       <div class="stat">
-        <i class="fa-solid fa-globe"></i>
+        <i class="fa-solid fa-bolt"></i>
         <div>
-          <strong>120+</strong>
-          <span>{% if lang == 'en' %}Countries{% else %}Ülke{% endif %}</span>
+          <strong>{% if lang == 'en' %}Instant Contact{% else %}Anında İletişim{% endif %}</strong>
+          <span>{% if lang == 'en' %}Quick access when found{% else %}Bulunduğunda hızlı ulaşım{% endif %}</span>
+        </div>
+      </div>
+
+      <div class="stat">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>
+          <strong>{% if lang == 'en' %}Secure Sharing{% else %}Güvenli Paylaşım{% endif %}</strong>
+          <span>{% if lang == 'en' %}Controlled contact info{% else %}Kontrollü iletişim bilgisi{% endif %}</span>
         </div>
       </div>
 
