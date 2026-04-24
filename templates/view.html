@@ -1,200 +1,425 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang|default('tr') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VistaQR – Bulunan Eşya Sahibi</title>
+    <title>{% if lang == 'en' %}Found Item Owner | VistaQR{% else %}Bulunan Eşya Sahibi | VistaQR{% endif %}</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #001533, #003b75);
-            color: white;
-            text-align: center;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #d7a84a;
+            --gold-soft: #f0c46a;
+            --navy: #010916;
+            --navy-2: #02193d;
+            --text-soft: rgba(255,255,255,0.76);
         }
 
-        .vista-logo {
-            width: 160px;
-            margin: 25px auto 15px auto;
-            display: block;
+        body {
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            background:
+                radial-gradient(circle at top left, rgba(240,196,106,0.20), transparent 18%),
+                radial-gradient(circle at top right, rgba(40,120,255,0.12), transparent 22%),
+                linear-gradient(135deg, #010916 0%, #02193d 50%, #03112a 100%);
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(215,168,74,0.18) 0, transparent 2px),
+                radial-gradient(circle at 82% 22%, rgba(215,168,74,0.14) 0, transparent 2px),
+                radial-gradient(circle at 18% 72%, rgba(215,168,74,0.12) 0, transparent 2px),
+                radial-gradient(circle at 88% 68%, rgba(215,168,74,0.10) 0, transparent 2px);
+            background-size: 240px 240px;
+            opacity: .8;
+        }
+
+        body::after {
+            background:
+                linear-gradient(120deg, transparent 8%, rgba(215,168,74,0.18) 9%, transparent 10%) left top / 60% 40% no-repeat,
+                linear-gradient(300deg, transparent 8%, rgba(215,168,74,0.12) 9%, transparent 10%) right bottom / 60% 40% no-repeat;
+            opacity: .55;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 28px 16px;
         }
 
         .card {
-            width: 90%;
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 22px;
-            backdrop-filter: blur(18px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
-            animation: fadein 0.5s ease-out;
+            width: 100%;
+            max-width: 520px;
+            padding: 34px 24px 28px;
+            border-radius: 34px;
+            background: linear-gradient(180deg, rgba(8,30,70,0.86), rgba(2,15,40,0.94));
+            border: 1.5px solid rgba(215,168,74,0.42);
+            box-shadow:
+                0 22px 80px rgba(0,0,0,0.42),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
+            text-align: center;
+            animation: fadeIn 0.45s ease-out;
         }
 
-        .title {
-            font-size: 26px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            width: 145px;
+            max-width: 52vw;
+            display: block;
+            margin: 0 auto 12px;
+        }
+
+        .system-name {
+            color: var(--gold-soft);
+            letter-spacing: 3px;
+            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 14px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .owner-icon {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-soft);
+            border: 1.5px solid rgba(240,196,106,0.55);
+            background: rgba(240,196,106,0.08);
+            font-size: 30px;
+            box-shadow: 0 0 30px rgba(240,196,106,0.16);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            line-height: 1.1;
+            color: #f8f5ef;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-soft);
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 390px;
+            margin: 0 auto 20px;
         }
 
         .qr-id-box {
-            margin: 0 auto 20px auto;
-            padding: 11px 14px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.14);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: #d7efff;
-            font-size: 14px;
+            margin: 0 auto 20px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(240,196,106,0.10);
+            border: 1px solid rgba(240,196,106,0.30);
+            color: #fff3c4;
+            font-size: 13px;
             word-break: break-word;
+        }
+
+        .qr-id-box i {
+            margin-right: 7px;
+            color: var(--gold-soft);
         }
 
         .qr-id-box strong {
             color: #ffffff;
-            letter-spacing: 0.4px;
         }
 
-        .info-box p {
-            font-size: 17px;
+        .info-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
             text-align: left;
-            margin: 10px 0;
-            line-height: 1.5;
-            word-break: break-word;
+            padding: 15px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.10);
         }
 
         .info-icon {
-            color: #4ecbff;
-            margin-right: 8px;
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-soft);
+            background: rgba(240,196,106,0.10);
+            border: 1px solid rgba(240,196,106,0.24);
+            font-size: 17px;
         }
 
-        .note-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 15px;
-            text-align: left;
-            font-size: 16px;
-            line-height: 1.6;
+        .info-text small {
+            display: block;
+            color: rgba(255,255,255,0.58);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .info-text strong,
+        .info-text a {
+            color: #ffffff;
+            font-size: 15px;
+            text-decoration: none;
             word-break: break-word;
         }
 
-        .btn-row {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            margin-top: 28px;
-            flex-wrap: wrap;
+        .info-text a {
+            color: #dbeafe;
         }
 
-        .call-btn {
-            background: #00C851;
-            padding: 12px 25px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            color: white;
-            text-decoration: none;
+        .note-box {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 18px;
+            text-align: left;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: rgba(255,255,255,0.82);
+            font-size: 14px;
+            line-height: 1.65;
+            word-break: break-word;
         }
 
-        .whatsapp-btn {
-            background: #25D366;
-            padding: 12px 23px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            color: white;
-            border: none;
+        .note-box .note-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
+            color: #fff3c4;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
-        @keyframes fadein {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .btn {
+            min-height: 52px;
+            border-radius: 16px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: .22s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
+        }
+
+        .call-btn {
+            color: #1d1a12;
+            background: linear-gradient(180deg, #f0c46a 0%, #dca949 55%, #bf8428 100%);
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.28),
+                inset 0 1px 0 rgba(255,255,255,0.45);
+        }
+
+        .whatsapp-btn {
+            color: white;
+            background: linear-gradient(180deg, #25D366, #15803d);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+        }
+
+        .safe-note {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.10);
+            color: rgba(255,255,255,0.68);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .safe-note i {
+            color: var(--gold-soft);
+            margin-right: 6px;
+        }
+
+        @media(max-width: 560px) {
+            .page {
+                align-items: flex-start;
+                padding: 18px 12px;
+            }
+
+            .card {
+                padding: 28px 16px 22px;
+                border-radius: 28px;
+            }
+
+            h1 {
+                font-size: 31px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            .btn-row {
+                grid-template-columns: 1fr;
+            }
+
+            .info-item {
+                padding: 13px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <main class="page">
+        <section class="card">
+            <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}?v=2" class="logo" alt="VistaQR">
 
-    <img src="{{ url_for('static', filename='img/vistaqr_logo.png') }}?v=1" class="vista-logo">
+            <div class="system-name">
+                {% if lang == 'en' %}
+                    QR KEYCHAIN SYSTEM
+                {% else %}
+                    QR ANAHTARLIK SİSTEMİ
+                {% endif %}
+            </div>
 
-    <div class="card">
-        <div class="title">
-            {% if lang == 'en' %}
-                Found Item Owner
-            {% else %}
-                Bulunan Eşya Sahibi
-            {% endif %}
-        </div>
+            <div class="owner-icon">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
 
-        {% if qr_code_id %}
-        <div class="qr-id-box">
-            <i class="fa-solid fa-qrcode"></i>
-            <strong>{% if lang == 'en' %}QR ID:{% else %}QR Kimliği:{% endif %}</strong>
-            {{ qr_code_id }}
-        </div>
-        {% endif %}
+            <h1>
+                {% if lang == 'en' %}
+                    Found Item Owner
+                {% else %}
+                    Bulunan Eşya Sahibi
+                {% endif %}
+            </h1>
 
-        <div class="info-box">
-            <p>
-                <i class="fa-solid fa-user info-icon"></i>
-                <strong>{% if lang == 'en' %}Full Name:{% else %}Ad Soyad:{% endif %}</strong>
-                {{ owner.name }}
+            <p class="subtitle">
+                {% if lang == 'en' %}
+                    You can contact the owner of this item using the information below.
+                {% else %}
+                    Bu eşyanın sahibine aşağıdaki bilgiler üzerinden ulaşabilirsiniz.
+                {% endif %}
             </p>
 
-            {% if owner.phone %}
-            <p>
-                <i class="fa-solid fa-phone info-icon"></i>
-                <strong>{% if lang == 'en' %}Phone:{% else %}Telefon:{% endif %}</strong>
-                <a href="tel:{{ owner.phone }}" style="color:#aee6ff;">
-                    {{ owner.phone }}
+            {% if qr_code_id %}
+            <div class="qr-id-box">
+                <i class="fa-solid fa-qrcode"></i>
+                <strong>{% if lang == 'en' %}QR ID:{% else %}QR Kimliği:{% endif %}</strong>
+                {{ qr_code_id }}
+            </div>
+            {% endif %}
+
+            <div class="info-list">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="info-text">
+                        <small>{% if lang == 'en' %}Full Name{% else %}Ad Soyad{% endif %}</small>
+                        <strong>{{ owner.name }}</strong>
+                    </div>
+                </div>
+
+                {% if owner.phone %}
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <div class="info-text">
+                        <small>{% if lang == 'en' %}Phone{% else %}Telefon{% endif %}</small>
+                        <a href="tel:{{ owner.phone }}">{{ owner.phone }}</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if owner.email and not owner.email.endswith('@vistaqr.local') %}
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div class="info-text">
+                        <small>{% if lang == 'en' %}Email{% else %}E-posta{% endif %}</small>
+                        <a href="mailto:{{ owner.email }}">{{ owner.email }}</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if note %}
+            <div class="note-box">
+                <div class="note-title">
+                    <i class="fa-regular fa-note-sticky"></i>
+                    {% if lang == 'en' %}Owner Note{% else %}Sahibinin Notu{% endif %}
+                </div>
+                {{ note }}
+            </div>
+            {% endif %}
+
+            <div class="btn-row">
+                {% if owner.phone %}
+                <a class="btn call-btn" href="tel:{{ owner.phone }}">
+                    <i class="fa-solid fa-phone"></i>
+                    {% if lang == 'en' %}Call Owner{% else %}Sahibini Ara{% endif %}
                 </a>
-            </p>
-            {% endif %}
+                {% endif %}
 
-            {% if owner.email and not owner.email.endswith('@vistaqr.local') %}
-            <p>
-                <i class="fa-solid fa-envelope info-icon"></i>
-                <strong>{% if lang == 'en' %}Email:{% else %}E-posta:{% endif %}</strong>
-                <a href="mailto:{{ owner.email }}" style="color:#aee6ff;">
-                    {{ owner.email }}
+                {% if whatsapp_url %}
+                <a class="btn whatsapp-btn" href="{{ whatsapp_url }}" target="_blank" rel="noopener">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    WhatsApp
                 </a>
-            </p>
-            {% endif %}
-        </div>
+                {% endif %}
+            </div>
 
-        {% if note %}
-        <div class="note-box">
-            {{ note }}
-        </div>
-        {% endif %}
-
-        <div class="btn-row">
-            {% if owner.phone %}
-            <a class="call-btn" href="tel:{{ owner.phone }}">
-                {% if lang == 'en' %}Call{% else %}Ara{% endif %}
-            </a>
-            {% endif %}
-
-            {% if whatsapp_url %}
-            <a class="whatsapp-btn"
-               href="{{ whatsapp_url }}"
-               target="_blank">
-               <i class="fa-brands fa-whatsapp"></i>
-               WhatsApp
-            </a>
-            {% endif %}
-        </div>
-
-    </div>
-
+            <div class="safe-note">
+                <i class="fa-regular fa-shield"></i>
+                {% if lang == 'en' %}
+                    VistaQR helps lost items return safely to their owners.
+                {% else %}
+                    VistaQR, kaybolan eşyaların güvenli şekilde sahibine ulaşmasına yardımcı olur.
+                {% endif %}
+            </div>
+        </section>
+    </main>
 </body>
 </html>
